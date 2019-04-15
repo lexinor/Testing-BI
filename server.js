@@ -10,6 +10,8 @@ app.use(bodyParser.urlencoded({ extended: true })); //  pour supporter  encoded 
 app.get('/',(req,res) => {
     console.log("Page d'accueil");
     module.direBonjour();
+    module.direBonsoir();
+
     res.end();
 });
 
