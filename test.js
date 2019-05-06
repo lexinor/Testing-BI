@@ -9,9 +9,9 @@ var direBonjour = () => {
 };
 
 var direBonsoir = () => {
-    var tester = new software_release("1","1", new software(1, "nomsoft", "desc", 2016-12-12) );
-    console.log("Last Name : "+ tester.getVersion());
+    var tester = new software_release(1,"1version", new software(1, "nomsoft", "desc", '2016-12-12') );
+    console.log("release : "+ tester.getVersion());
 };
 
 exports.direBonjour = direBonjour;
-exports.direBonjour = direBonsoir();
+exports.direBonsoir = direBonsoir;

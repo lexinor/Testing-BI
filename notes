@@ -1,0 +1,11 @@
+Faire des cruds pour les tables =>
+-Tester (POST,GET, DELETE, PUT)
+-Test (POST,GET, DELETE, PUT)
+-CampaignTest (POST,GET, DELETE, PUT)
+-Software (POST,GET, DELETE, PUT)
+-Software_Release (POST, GET, PUT)
+-Version (POST, GET, PUT)
+-Issue (POST, GET, PUT)
+-Issue_type(POST,GET, DELETE, PUT)
+-Test_Category(POST,GET, DELETE, PUT)
+Analyse(POST,GET, DELETE, PUT)
