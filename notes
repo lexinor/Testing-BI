@@ -1,6 +1,6 @@
 Faire des cruds pour les tables =>
--Tester (POST,GET, DELETE, PUT)
--Test (POST,GET, DELETE, PUT)
+-Tester (POST,GET, DELETE, PUT)  -- OK
+-Test (POST,GET, DELETE, PUT) -- OK
 -CampaignTest (POST,GET, DELETE, PUT)
 -Software (POST,GET, DELETE, PUT)
 -Software_Release (POST, GET, PUT)
