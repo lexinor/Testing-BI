@@ -16,6 +16,7 @@ let con = mysql.createConnection({
     port: "8889"
 });
 
+// Homepage
 app.get('/', function(req, res) {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.send('Bonjour');
@@ -24,7 +25,8 @@ app.get('/', function(req, res) {
 app.get('/private', function(req, res) {
     res.sendFile( __dirname + "/private/" + "chatmyope.jpg" );
 });
-
+//-----------------------------------Fonctions Utilisateurs-------------------------------------------------------------
+// Listing all testers
 app.post('/users', function(req, res) {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     obj = JSON.parse(JSON.stringify(req.body, null, " "));
@@ -46,7 +48,7 @@ app.post('/users', function(req, res) {
     res.status(200).end('Contact créé' );
 });
 //-----------------------------------Fonctions Utilisateurs-------------------------------------------------------------
-//Récupère tous les Testeurs
+// Listing all testers
 app.get('/testers', function(req, res) {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
 
@@ -59,7 +61,8 @@ app.get('/testers', function(req, res) {
             });
     });
 }   );
-//Crée un nouveau Testeur
+
+// This method add a tester we need to send a JSON object with the user info to succeed
 app.post('/testers', function(req, res) {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     obj = JSON.parse(JSON.stringify(req.body, null, " "));
@@ -74,7 +77,7 @@ app.post('/testers', function(req, res) {
     });
     res.status(200).end('Testeur créé' );
 });
-
+// Delete a tester using his ID
 app.delete('/testers/:uId', function (req, res) {
     res.setHeader("Content-Type","application/json; charset=utf8");
     let id = req.params.uId;
@@ -89,6 +92,8 @@ app.delete('/testers/:uId', function (req, res) {
     });
 });
 
+// This method modify a tester using his ID to select the correct user
+// You need to send a JSON to modify the user infos
 app.put('/testers/:uId',function (req,res) {
     res.setHeader("Content-Type","application/json; charset=utf8");
     obj = JSON.parse(JSON.stringify(req.body,null," "));
@@ -106,7 +111,7 @@ app.put('/testers/:uId',function (req,res) {
     })
 })
 
-
+// This method GET a specific tester using his ID
 app.get('/testers/:uId', function(req, res) {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
 
