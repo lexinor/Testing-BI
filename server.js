@@ -8,6 +8,7 @@ var jwt = require('jsonwebtoken');
 let tester = require('./testers.js');
 let tests = require('./tests.js');
 let execute = require('./execute.js');
+let test_category = require('./test_category.js');
 //let test = require('./tests.js');
 
 var app = express();
@@ -102,6 +103,29 @@ app.put('/execute/:uId/:tId/:cId',function (req,res) {
 //affiche un test particulier
 app.get('/execute/:uId/:tId/:cId', function(req, res) {
     execute.getExecuteById();
+});
+
+//--------------------Test_Category --------------------------------------------------
+app.get('/test_category', function(req, res) {
+    test_category.getAllTestCategory();
+});
+//Crée une nouvelle categorie de test
+app.post('/test_category', function(req, res) {
+    test_category.addTestCategory()
+});
+
+//Supprime la catégorie de test selon son Id
+app.remove('/test_category/:catId', function (req, res) {
+    test_category.removeTestCategory()
+});
+//modifie la categorie de Test selon son id
+app.put('/test_category/:catId',function (req,res) {
+    test_category.updateTestCategory();
+});
+
+//affiche une categorie de test particulier
+app.get('/test_category/:catId', function(req, res) {
+    test_category.getTestCategoryById();
 });
 
 
