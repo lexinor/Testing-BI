@@ -6,6 +6,7 @@ Faire des cruds pour les tables =>
 -CampaignTest (POST,GET, DELETE, PUT) -- maxime
 -Software (POST,GET, DELETE, PUT) -- ALESSANDRO
 -Software_Release (POST, GET, PUT) -- maxime
+-Version -- Maxime
 -Version (POST, GET, PUT)
 -Issue (POST, GET, PUT)
 -Issue_type(POST,GET, DELETE, PUT) -- yani

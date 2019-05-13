@@ -1,28 +1,36 @@
-//-----------------------------------Fonctions Execute -------------------------------------------------------------
+var mysql = require('mysql');
+
+let con = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "root",
+    database: "db_testing",
+    port: "8889"
+});
+//-----------------------------------Fonctions Version -------------------------------------------------------------
 //Récupère toutes les éxécutions de test par un testeur
-let getAllExecute = (req,res) => {
+let getAllVersion = (req,res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
 
     con.connect(function(err) {
         if (err) throw err;
-        con.query("SELECT * FROM execute", function (err, rows, fields) {
+        con.query("SELECT * FROM Version", function (err, rows, fields) {
             if (err) throw err;
-            console.log(rows);
             res.json(rows);
         });
     });
-}
+};
 
 
 //Crée une nouvelle éxécution
-let addExecute = (req, res) => {
+let addVersion = (req, res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     obj = JSON.parse(JSON.stringify(req.body, null, " "));
     con.connect(function(err) {
         console.log(obj);
         if (err) throw err;
-        var sql = mysql.format("INSERT INTO execute (uId, tId, cId, statut, startDate, endDate) " +
-            "VALUES (?,?,?,?,?,?);", [obj.uId, obj.tId, obj.cId, obj.statut, obj.startDate,obj.endDate]);
+        var sql = mysql.format("INSERT INTO Version (sId, rId, vId, vLabel, vDescription) " +
+            "VALUES (?,?,?,?,?);", [obj.sId, obj.rId, obj.vId, obj.vLabel, obj.vDescription]);
         con.query(sql, function (err, result) {
             if (err) throw err;
             console.log("1 record inserted");
@@ -32,15 +40,14 @@ let addExecute = (req, res) => {
 };
 
 //Supprime l'éxécution selon son Id
-let removeExecute = (req, res) => {
+let removeVersion = (req, res) => {
     res.setHeader("Content-Type","application/json; charset=utf8");
     con.connect(function (err) {
         if(err) throw err;
 
-        let sql = mysql.format("DELETE FROM Execute WHERE uId = ? and tId = ? and cId = ? ; ", [req.params.uId,
-            req.params.tId,
-            req.params.cId]);
-
+        let sql = mysql.format("DELETE FROM Version WHERE sId = ? and rId = ? and vId = ? ; ", [req.params.sId,
+            req.params.rId,
+            req.params.vId]);
         con.query(sql,function (err, result,fields) {
             if(err) throw err;
             res.status(200).end("Nombre de lignes supprimée : " + result.affectedRows);
@@ -48,16 +55,16 @@ let removeExecute = (req, res) => {
     });
 };
 //modifie l'éxécution selon son id
-let updateExecute = (req,res) => {
+let updateVersion = (req,res) => {
     res.setHeader("Content-Type","application/json; charset=utf8");
     obj = JSON.parse(JSON.stringify(req.body,null," "));
     con.connect(function (err) {
         if(err) throw  err;
         console.log(obj);
-        let sql = mysql.format("UPDATE Execute SET statut = ?, startDate = ?, endDate = ? where uId = ? and tId = ? and cId = ?",
-            [obj.statut,
-                obj.startDate, obj.endDate, req.params.uId,req.params.tId,req.params.cId]);
-        console.log(sql);
+        let sql = mysql.format("UPDATE Version SET vLabel = ?, vDescription = ?, sId = ?, rId = ?,  vId = ?" +
+            " where sId = ? and rId = ? and vId = ?",
+            [obj.vLabel,
+                obj.vDescription, obj.sId,obj.rId, obj.sId, req.params.sId,req.params.rId,req.params.vId]);
         con.query(sql,function (err, result) {
             if(err) throw err;
             res.status(200).end("Nombre de lignes modifiés: " + result.affectedRows);
@@ -66,13 +73,13 @@ let updateExecute = (req,res) => {
 };
 
 //affiche un test particulier
-let getExecuteById = (req, res) => {
+let getVersionById = (req, res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     con.connect(function(err) {
         if (err) throw err;
-        let sql = mysql.format("SELECT * FROM Execute WHERE uId=? and tId = ? and cId = ? ", [req.params.uId,
-            req.params.tId,
-            req.params.cId]);
+        let sql = mysql.format("SELECT * FROM Version WHERE sId=? and rId = ? and vId = ? ", [req.params.sId,
+            req.params.rId,
+            req.params.vId]);
         con.query(sql, function (err, rows, fields) {
             if (err) throw err;
             console.log(rows);
@@ -81,8 +88,8 @@ let getExecuteById = (req, res) => {
     });
 };
 
-exports.getAllExecute = getAllExecute;
-exports.addExecute = addExecute;
-exports.removeExecute =removeExecute;
-exports.updateExecute = updateExecute;
-exports.getExecuteById = getExecuteById;
+exports.getAllVersion = getAllVersion;
+exports.addVersion = addVersion;
+exports.removeVersion = removeVersion;
+exports.updateVersion = updateVersion;
+exports.getVersionById = getVersionById;

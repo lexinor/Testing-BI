@@ -1,28 +1,36 @@
-//-----------------------------------Fonctions Execute -------------------------------------------------------------
+var mysql = require('mysql');
+
+let con = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "root",
+    database: "db_testing",
+    port: "8889"
+});
+//-----------------------------------Fonctions Analyze -------------------------------------------------------------
 //Récupère toutes les éxécutions de test par un testeur
-let getAllExecute = (req,res) => {
+let getAllAnalyze = (req,res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
 
     con.connect(function(err) {
         if (err) throw err;
-        con.query("SELECT * FROM execute", function (err, rows, fields) {
+        con.query("SELECT * FROM Analyze", function (err, rows, fields) {
             if (err) throw err;
-            console.log(rows);
             res.json(rows);
         });
     });
-}
+};
 
 
 //Crée une nouvelle éxécution
-let addExecute = (req, res) => {
+let addAnalyze = (req, res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     obj = JSON.parse(JSON.stringify(req.body, null, " "));
     con.connect(function(err) {
         console.log(obj);
         if (err) throw err;
-        var sql = mysql.format("INSERT INTO execute (uId, tId, cId, statut, startDate, endDate) " +
-            "VALUES (?,?,?,?,?,?);", [obj.uId, obj.tId, obj.cId, obj.statut, obj.startDate,obj.endDate]);
+        var sql = mysql.format("INSERT INTO Analyze (issId, tId, uId, statut, startDate, endDate) " +
+            "VALUES (?,?,?,?,?,?);", [obj.issId, obj.tId, obj.uId, obj.statut, obj.startDate, obj.endDate]);
         con.query(sql, function (err, result) {
             if (err) throw err;
             console.log("1 record inserted");
@@ -32,15 +40,14 @@ let addExecute = (req, res) => {
 };
 
 //Supprime l'éxécution selon son Id
-let removeExecute = (req, res) => {
+let removeAnalyze = (req, res) => {
     res.setHeader("Content-Type","application/json; charset=utf8");
     con.connect(function (err) {
         if(err) throw err;
 
-        let sql = mysql.format("DELETE FROM Execute WHERE uId = ? and tId = ? and cId = ? ; ", [req.params.uId,
+        let sql = mysql.format("DELETE FROM Analyze WHERE issId = ? and tId = ? and uId = ? ; ", [req.params.issId,
             req.params.tId,
-            req.params.cId]);
-
+            req.params.uId]);
         con.query(sql,function (err, result,fields) {
             if(err) throw err;
             res.status(200).end("Nombre de lignes supprimée : " + result.affectedRows);
@@ -48,16 +55,18 @@ let removeExecute = (req, res) => {
     });
 };
 //modifie l'éxécution selon son id
-let updateExecute = (req,res) => {
+let updateAnalyze = (req,res) => {
     res.setHeader("Content-Type","application/json; charset=utf8");
     obj = JSON.parse(JSON.stringify(req.body,null," "));
     con.connect(function (err) {
         if(err) throw  err;
         console.log(obj);
-        let sql = mysql.format("UPDATE Execute SET statut = ?, startDate = ?, endDate = ? where uId = ? and tId = ? and cId = ?",
-            [obj.statut,
-                obj.startDate, obj.endDate, req.params.uId,req.params.tId,req.params.cId]);
-        console.log(sql);
+        let sql = mysql.format("UPDATE Analyze SET statut = ?, startDate = ?, endDate = ?, issId = ?,  tId = ?" +
+            " WHERE issId = ? and tId = ? and uId = ?",
+            [obj.vLabel,
+                obj.vDescription, obj.sId,obj.rId, obj.sId, req.params.issId,
+                req.params.tId,
+                req.params.uId]);
         con.query(sql,function (err, result) {
             if(err) throw err;
             res.status(200).end("Nombre de lignes modifiés: " + result.affectedRows);
@@ -66,13 +75,13 @@ let updateExecute = (req,res) => {
 };
 
 //affiche un test particulier
-let getExecuteById = (req, res) => {
+let getAnalyzeById = (req, res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     con.connect(function(err) {
         if (err) throw err;
-        let sql = mysql.format("SELECT * FROM Execute WHERE uId=? and tId = ? and cId = ? ", [req.params.uId,
+        let sql = mysql.format("SELECT * FROM Analyze WHERE issId = ? and tId = ? and uId = ? ", [req.params.issId,
             req.params.tId,
-            req.params.cId]);
+            req.params.uId]);
         con.query(sql, function (err, rows, fields) {
             if (err) throw err;
             console.log(rows);
@@ -81,8 +90,8 @@ let getExecuteById = (req, res) => {
     });
 };
 
-exports.getAllExecute = getAllExecute;
-exports.addExecute = addExecute;
-exports.removeExecute =removeExecute;
-exports.updateExecute = updateExecute;
-exports.getExecuteById = getExecuteById;
+exports.getAllAnalyze = getAllAnalyze;
+exports.addAnalyze = addAnalyze;
+exports.removeAnalyze = removeAnalyze;
+exports.updateAnalyze = updateAnalyze;
+exports.getAnalyzeById = getAnalyzeById;
