@@ -1,12 +1,11 @@
 Faire des cruds pour les tables =>
 -Tester (POST,GET, DELETE, PUT)  -- OK MAXIME
 -Test (POST,GET, DELETE, PUT) -- OK MAXIME
---eXECUTE --  ok mAXIME
+--eXECUTE -- mAXIME
 
--CampaignTest (POST,GET, DELETE, PUT) -- MAXIME ok
--Software (POST,GET, DELETE, PUT) -- Maxime
--Software_Release (POST, GET, PUT) -- Maxime
--Version -- Maxime
+-CampaignTest (POST,GET, DELETE, PUT) --
+-Software (POST,GET, DELETE, PUT) -- ALESSANDRO
+-Software_Release (POST, GET, PUT)
 -Version (POST, GET, PUT)
 -Issue (POST, GET, PUT)
 -Issue_type(POST,GET, DELETE, PUT) -- yani
