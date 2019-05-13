@@ -7,10 +7,8 @@ var jwt = require('jsonwebtoken');
 // Calling custom modules
 let tester = require('./testers.js');
 let tests = require('./tests.js');
-let execute = require('./execute.js');
-let test_category = require('./test_category.js');
 //let test = require('./tests.js');
-let version = require('./version.js');
+//let test = require('./tests.js');
 
 var app = express();
 app.use(bodyParser.json()); // pour supporter json encoded bodies
@@ -82,75 +80,6 @@ app.put('/tests/:tId',function (req,res) {
 app.get('/tests/:tId', function(req, res) {
     tests.getTestById(req,res);
 });
-
-//--------------------Execute --------------------------------------------------
-app.get('/execute', function(req, res) {
-   execute.getAllExecute(req,res);
-});
-//Crée une nouvelle éxécution
-app.post('/execute', function(req, res) {
-    execute.addExecute(req,res);
-});
-
-//Supprime l'éxécution selon son Id
-app.delete('/execute/:uId/:tId/:cId', function (req, res) {
-    execute.removeExecute(req,res);
-});
-//modifie l'éxécution selon son id
-app.put('/execute/:uId/:tId/:cId',function (req,res) {
-    execute.updateExecute(req,res);
-});
-
-//affiche un test particulier
-app.get('/execute/:uId/:tId/:cId', function(req, res) {
-    execute.getExecuteById(req,res);
-});
-
-//--------------------Version --------------------------------------------------
-app.get('/version', function(req, res) {
-    version.getAllVersion(req,res);
-});
-//Crée une nouvelle éxécution
-app.post('/version', function(req, res) {
-    version.addVersion(req,res);
-});
-
-//Supprime l'éxécution selon son Id
-app.delete('/version/:sId/:rId/:vId', function (req, res) {
-    version.removeVersion(req,res);
-});
-//modifie l'éxécution selon son id
-app.put('/version/:sId/:rId/:vId',function (req,res) {
-    version.updateVersion(req,res);
-});
-
-//affiche un test particulier
-app.get('/version/:sId/:rId/:vId', function(req, res) {
-    version.getVersionById(req,res);
-});
-//--------------------Test_Category --------------------------------------------------
-app.get('/test_category', function(req, res) {
-    test_category.getAllTestCategory();
-});
-//Crée une nouvelle categorie de test
-app.post('/test_category', function(req, res) {
-    test_category.addTestCategory()
-});
-
-//Supprime la catégorie de test selon son Id
-app.remove('/test_category/:catId', function (req, res) {
-    test_category.removeTestCategory()
-});
-//modifie la categorie de Test selon son id
-app.put('/test_category/:catId',function (req,res) {
-    test_category.updateTestCategory();
-});
-
-//affiche une categorie de test particulier
-app.get('/test_category/:catId', function(req, res) {
-    test_category.getTestCategoryById();
-});
-
 
 
 //app.use(express.static('forms'));

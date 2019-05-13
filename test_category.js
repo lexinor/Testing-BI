@@ -1,4 +1,4 @@
-app.get('/execute', function(req, res) {
+let getAllTestCategory = (req,res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
 
     con.connect(function(err) {
@@ -9,9 +9,9 @@ app.get('/execute', function(req, res) {
             res.json(rows);
         });
     });
-}   );
+}
 //Crée une nouvelle éxécution
-app.post('/execute', function(req, res) {
+let addTestCategory = (req, res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     obj = JSON.parse(JSON.stringify(req.body, null, " "));
     con.connect(function(err) {
@@ -25,10 +25,10 @@ app.post('/execute', function(req, res) {
         });
     });
     res.status(200).end('Execution créée' );
-});
+};
 
 //Supprime l'éxécution selon son Id
-app.delete('/execute/:catId', function (req, res) {
+let removeTestCategory = (req, res) => {
     res.setHeader("Content-Type","application/json; charset=utf8");
     con.connect(function (err) {
         if(err) throw err;
@@ -41,9 +41,9 @@ app.delete('/execute/:catId', function (req, res) {
             res.status(200).end("Nombre de lignes supprimée : " + result.affectedRows);
         });
     });
-});
+};
 //modifie l'éxécution selon son id
-app.put('/execute/:catId',function (req,res) {
+let updateTestCategory = (req,res) => {
     res.setHeader("Content-Type","application/json; charset=utf8");
     obj = JSON.parse(JSON.stringify(req.body,null," "));
     con.connect(function (err) {
@@ -58,10 +58,10 @@ app.put('/execute/:catId',function (req,res) {
             res.status(200).end("Nombre de lignes modifiés: " + result.affectedRows);
         })
     })
-});
+};
 
 //affiche une categorie de test particuliere
-app.get('/execute/:catId', function(req, res) {
+let getTestCategoryById = (req, res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     con.connect(function(err) {
         if (err) throw err;
@@ -73,4 +73,10 @@ app.get('/execute/:catId', function(req, res) {
             res.json(rows);
         });
     });
-});
+};
+
+exports.getAllTestCategory = getAllTestCategory;
+exports.addTestCategory = addTestCategory;
+exports.removeTestCategory =removeTestCategory;
+exports.updateTestCategory = updateTestCategory;
+exports.getTestCategoryById = getTestCategoryById;
