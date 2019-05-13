@@ -9,7 +9,8 @@ app.get('/execute', function(req, res) {
             res.json(rows);
         });
     });
-}   );
+});
+
 //Crée une nouvelle éxécution
 app.post('/execute', function(req, res) {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -42,6 +43,7 @@ app.delete('/execute/:catId', function (req, res) {
         });
     });
 });
+
 //modifie l'éxécution selon son id
 app.put('/execute/:catId',function (req,res) {
     res.setHeader("Content-Type","application/json; charset=utf8");

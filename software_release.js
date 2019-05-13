@@ -1,18 +1,19 @@
 //-----------------------------------Fonctions campaignTest -------------------------------------------------------------
-//Récupère toutes les éxécutions de test par un testeur
-app.get('/Software_Release', function(req, res) {
+// Get all Informations from a Release
+let getAllInfoByRelease = (req, res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     con.connect(function(err) {
         if (err) throw err;
-        con.query("SELECT * FROM Software", function (err, rows, fields) {
+        con.query("SELECT * FROM Software_Release", function (err, rows, fields) {
             if (err) throw err;
             console.log(rows);
             res.json(rows);
         });
     });
-}   );
-//Crée une nouvelle campaignTest
-app.post('/Software_Release', function(req, res) {
+}
+
+// Create a new Release
+let createRelease = (req,res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     obj = JSON.parse(JSON.stringify(req.body, null, " "));
     con.connect(function(err) {
@@ -26,9 +27,10 @@ app.post('/Software_Release', function(req, res) {
         });
     });
     res.status(200).end('Software_Release créée');
-});
-//Supprime l'campaignTest selon son Id
-app.delete('/Software_Release/:sId/:rId', function (req, res) {
+}
+
+// Delete a release by ID
+let removeRelease = (req,res) => {
     res.setHeader("Content-Type","application/json; charset=utf8");
     con.connect(function (err) {
         if(err) throw err;
@@ -40,9 +42,10 @@ app.delete('/Software_Release/:sId/:rId', function (req, res) {
             res.status(200).end("Nombre de lignes supprimée : " + result.affectedRows);
         });
     });
-});
-//modifie une campaignTest selon son id
-app.put('/Software_Release/:sId/:rId',function (req,res) {
+}
+
+// Edit a release
+let editRelease = (req,res) => {
     res.setHeader("Content-Type","application/json; charset=utf8");
     obj = JSON.parse(JSON.stringify(req.body,null," "));
     con.connect(function (err) {
@@ -54,11 +57,11 @@ app.put('/Software_Release/:sId/:rId',function (req,res) {
             if(err) throw err;
             res.status(200).end("Nombre de lignes modifiés: " + result.affectedRows);
         })
-    })
-});
+    });
+}
 
-//affiche un campaignTest particulier
-app.get('/Software_Release/:sId/:rId', function(req, res) {
+// Get a Release using it's Id
+let getReleaseById = (req,res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     con.connect(function(err) {
         if (err) throw err;
@@ -70,4 +73,10 @@ app.get('/Software_Release/:sId/:rId', function(req, res) {
             res.json(rows);
         });
     });
-});
+}
+
+exports.getAllInfoByRelease = getAllInfoByRelease;
+exports.createRelease = createRelease;
+exports.removeRelease = removeRelease;
+exports.editRelease = editRelease;
+exports.getReleaseById = getReleaseById;
