@@ -7,7 +7,7 @@ var jwt = require('jsonwebtoken');
 // Calling custom modules
 let tester = require('./testers.js');
 let tests = require('./tests.js');
-//let test = require('./tests.js');
+let execute = require('./execute.js');
 //let test = require('./tests.js');
 
 var app = express();
@@ -80,6 +80,30 @@ app.put('/tests/:tId',function (req,res) {
 app.get('/tests/:tId', function(req, res) {
     tests.getTestById(req,res);
 });
+
+//--------------------Execute --------------------------------------------------
+app.get('/execute', function(req, res) {
+   execute.getAllExecute();
+});
+//Crée une nouvelle éxécution
+app.post('/execute', function(req, res) {
+    execute.addExecute();
+});
+
+//Supprime l'éxécution selon son Id
+app.delete('/execute/:uId/:tId/:cId', function (req, res) {
+    execute.deleteExecute();
+});
+//modifie l'éxécution selon son id
+app.put('/execute/:uId/:tId/:cId',function (req,res) {
+    execute.updateExecute();
+});
+
+//affiche un test particulier
+app.get('/execute/:uId/:tId/:cId', function(req, res) {
+    execute.getExecuteById();
+});
+
 
 
 //app.use(express.static('forms'));

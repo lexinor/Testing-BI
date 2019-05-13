@@ -3,9 +3,9 @@ Faire des cruds pour les tables =>
 -Test (POST,GET, DELETE, PUT) -- OK MAXIME
 --eXECUTE -- mAXIME
 
--CampaignTest (POST,GET, DELETE, PUT) --
+-CampaignTest (POST,GET, DELETE, PUT) -- maxime
 -Software (POST,GET, DELETE, PUT) -- ALESSANDRO
--Software_Release (POST, GET, PUT)
+-Software_Release (POST, GET, PUT) -- maxime
 -Version (POST, GET, PUT)
 -Issue (POST, GET, PUT)
 -Issue_type(POST,GET, DELETE, PUT) -- yani
