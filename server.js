@@ -1,11 +1,12 @@
-var express = require('express');
+let express = require('express');
 let cookieParser = require('cookie-parser');
 let session = require('express-session');
 
-var bodyParser = require('body-parser');
-var mysql = require('mysql');
-var cors = require('cors');
-var jwt = require('jsonwebtoken');
+let bodyParser = require('body-parser');
+let mysql = require('mysql');
+let pug = require('pug');
+let cors = require('cors');
+let jwt = require('jsonwebtoken');
 
 // Session handling
 
@@ -18,8 +19,6 @@ let test_category = require('./test_category.js');
 //let test = require('./tests.js');
 let version = require('./version.js');
 let analyze = require('./analyze.js');
-var pug = require('pug');
-
 
 var app = express();
 app.set('view engine', 'pug');
@@ -35,42 +34,65 @@ let con = mysql.createConnection({
     host: "localhost",
     user: "nodeuser",
     password: "node",
-    database: "LicencePro"
+    database: "db_testing"
 });
 
 let sess;
 
-app.get('/login', (req,res) => {
+app.post('/login', (req,res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     sess = req.session;
     obj = JSON.parse(JSON.stringify(req.body, null, " "));
-    let token = jwt.sign({ data: Date.now() }, 'secret', { expiresIn: '1h' });
 
-    sess.login = obj.login;
-    sess.token = token;
-    if(sess.login)
-        res.redirect('/login1');
-    else
-        res.redirect('/');
+    sess.mail = obj.mail;
+    if(sess.mail){
+        con.connect(function(err) {
+            if (err) throw err;
+            let sql = mysql.format("SELECT * FROM tester WHERE uMail=? and uPassword=?",[obj.mail, obj.pass]);
+            con.query(sql, function (err, rows, fields) {
+                if (err) throw err;
+                console.log(rows.length);
+                if(rows.length > 0){
+                    res.redirect('/panel');
+                }
+                else{
+                    res.redirect('/');
+                }
+            });
+        });
+    }
+    else{
+        console.log("Erreur de connexion");
+        res.status(400).end('/aaaa');
+    }
 })
 
-app.get('/login1', (req,res) => {
-    res.setHeader("Content-Type", "application/json; charset=utf-8");
+
+
+app.get('/panel', (req,res) => {
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
     sess = req.session;
-    if(sess.login){
-        res.write("Bienvenue : " +sess.login);
-        res.write("Votre token : " +sess.token);
-        res.end();
+    if(sess.mail){
+        res.status(200).render('index', { mail: sess.mail});
     }
     else
         res.redirect('/');
 })
 
+app.get('/panel', (req,res) => {
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    sess = req.session;
+    if(sess.login){
+        res.render('index');
+    }
+    else
+        res.redirect('/login');
+})
+
 
 // Homepage
 app.get('/', function(req, res) {
-    res.setHeader("Content-Type", "application/json; charset=utf-8");
-    res.send('Bonjour');
+    res.render('login');
 });
 
 app.get('/test', function (req, res) {
