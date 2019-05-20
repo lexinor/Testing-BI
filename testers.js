@@ -4,18 +4,19 @@ let con = mysql.createConnection({
     host: "localhost",
     user: "nodeuser",
     password: "node",
-    database: "db_testing"
+    database: "db_testing",
+    port: "8889"
 });
 
 var getUsers = (req, res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
-
+    let toto = 6;
     con.connect(function(err) {
         if (err) throw err;
         con.query("SELECT * FROM tester", function (err, rows, fields) {
             if (err) throw err;
-            console.log(rows);
-            res.json(rows);
+           toto = rows;
+           // console.log(rows);
         });
     });
 };

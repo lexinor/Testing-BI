@@ -42,7 +42,7 @@ let removeRelease = (req,res) => {
             res.status(200).end("Nombre de lignes supprimée : " + result.affectedRows);
         });
     });
-}
+};
 
 // Edit a release
 let editRelease = (req,res) => {
@@ -58,7 +58,7 @@ let editRelease = (req,res) => {
             res.status(200).end("Nombre de lignes modifiés: " + result.affectedRows);
         })
     });
-}
+};
 
 // Get a Release using it's Id
 let getReleaseById = (req,res) => {
@@ -73,7 +73,7 @@ let getReleaseById = (req,res) => {
             res.json(rows);
         });
     });
-}
+};
 
 exports.getAllInfoByRelease = getAllInfoByRelease;
 exports.createRelease = createRelease;

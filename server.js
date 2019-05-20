@@ -19,11 +19,9 @@ let test_category = require('./test_category.js');
 let version = require('./version.js');
 let analyze = require('./analyze.js');
 var pug = require('pug');
-
-
 var app = express();
-app.set('view engine', 'pug');
 
+app.set('view engine', 'pug');
 
 app.use(bodyParser.json()); // pour supporter json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); //  pour supporter  encoded url
@@ -35,7 +33,8 @@ let con = mysql.createConnection({
     host: "localhost",
     user: "nodeuser",
     password: "node",
-    database: "LicencePro"
+    database: "db_testing",
+    port: "8889"
 });
 
 let sess;
@@ -52,7 +51,7 @@ app.get('/login', (req,res) => {
         res.redirect('/login1');
     else
         res.redirect('/');
-})
+});
 
 app.get('/login1', (req,res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -64,7 +63,7 @@ app.get('/login1', (req,res) => {
     }
     else
         res.redirect('/');
-})
+});
 
 
 // Homepage
@@ -73,17 +72,22 @@ app.get('/', function(req, res) {
     res.send('Bonjour');
 });
 
-app.get('/test', function (req, res) {
-    res.render('index');
+app.get('/testers', function (req, res) {
+    con.query('SELECT *  FROM tester ', (err, rows, fields) => {
+        if (err) {
+            return next(err);
+        }
+        console.log(fields);
+        res.render('read_testers', { rows : rows});
+    });
 });
 
-
 //-----------------------------------Fonctions Utilisateurs-------------------------------------------------------------
-
 // Listing all testers
-app.get('/testers', function(req, res) {
-    tester.getUsers(req,res);
-}   );
+app.get('/u', function(req, res) {
+    console.log("ouuui");
+  res.render('index');
+});
 
 // This method add a tester we need to send a JSON object with the user info to succeed
 app.post('/testers', function(req, res) {
@@ -99,7 +103,7 @@ app.delete('/testers/:uId', function (req, res) {
 // You need to send a JSON to modify the user infos
 app.put('/testers/:uId',function (req,res) {
     tester.editUser(req,res);
-})
+});
 
 // This method GET a specific tester using his ID
 app.get('/testers/:uId', function(req, res) {
@@ -151,6 +155,7 @@ app.put('/execute/:uId/:tId/:cId',function (req,res) {
 app.get('/execute/:uId/:tId/:cId', function(req, res) {
     execute.getExecuteById(req,res);
 });
+
 //--------------------Version --------------------------------------------------
 app.get('/version', function(req, res) {
     version.getAllVersion(req,res);
