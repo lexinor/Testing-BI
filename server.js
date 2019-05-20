@@ -1,8 +1,14 @@
 var express = require('express');
+let cookieParser = require('cookie-parser');
+let session = require('express-session');
+
 var bodyParser = require('body-parser');
 var mysql = require('mysql');
 var cors = require('cors');
 var jwt = require('jsonwebtoken');
+
+// Session handling
+
 
 // Calling custom modules
 let tester = require('./testers.js');
@@ -13,8 +19,12 @@ let test_category = require('./test_category.js');
 let version = require('./version.js');
 
 var app = express();
+
 app.use(bodyParser.json()); // pour supporter json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); //  pour supporter  encoded url
+
+app.use(cookieParser());
+app.use(session({ secret: "toto", resave: false, saveUninitialized: false, cookie: { maxAge: 6000} }));
 
 let con = mysql.createConnection({
     host: "localhost",
@@ -23,17 +33,43 @@ let con = mysql.createConnection({
     database: "LicencePro"
 });
 
+let sess;
+
+app.get('/login', (req,res) => {
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    sess = req.session;
+    obj = JSON.parse(JSON.stringify(req.body, null, " "));
+    let token = jwt.sign({ data: Date.now() }, 'secret', { expiresIn: '1h' });
+
+    sess.login = obj.login;
+    sess.token = token;
+    if(sess.login)
+        res.redirect('/login1');
+    else
+        res.redirect('/');
+})
+
+app.get('/login1', (req,res) => {
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    sess = req.session;
+    if(sess.login){
+        res.write("Bienvenue : " +sess.login);
+        res.write("Votre token : " +sess.token);
+        res.end();
+    }
+    else
+        res.redirect('/');
+})
+
+
 // Homepage
 app.get('/', function(req, res) {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.send('Bonjour');
 });
 
-app.get('/private', function(req, res) {
-    res.sendFile( __dirname + "/private/" + "chatmyope.jpg" );
-});
-
 //-----------------------------------Fonctions Utilisateurs-------------------------------------------------------------
+
 // Listing all testers
 app.get('/testers', function(req, res) {
     tester.getUsers(req,res);
@@ -138,7 +174,7 @@ app.post('/test_category', function(req, res) {
 });
 
 //Supprime la catégorie de test selon son Id
-app.remove('/test_category/:catId', function (req, res) {
+app.delete('/test_category/:catId', function (req, res) {
     test_category.removeTestCategory()
 });
 //modifie la categorie de Test selon son id
@@ -150,8 +186,6 @@ app.put('/test_category/:catId',function (req,res) {
 app.get('/test_category/:catId', function(req, res) {
     test_category.getTestCategoryById();
 });
-
-
 
 //app.use(express.static('forms'));
 app.use('/static', express.static('public'));
