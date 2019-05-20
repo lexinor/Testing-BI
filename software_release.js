@@ -27,7 +27,7 @@ let createRelease = (req,res) => {
         });
     });
     res.status(200).end('Software_Release créée');
-}
+};
 
 // Delete a release by ID
 let removeRelease = (req,res) => {

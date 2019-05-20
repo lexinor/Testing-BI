@@ -18,7 +18,7 @@ var getUsers = (req, res) => {
             res.json(rows);
         });
     });
-}
+};
 
 var addUser = (req, res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -40,7 +40,7 @@ var addUser = (req, res) => {
         });
     });
     //res.status(200).end('Testeur créé');
-}
+};
 
 
 let removeUser = (req,res) => {
@@ -55,7 +55,7 @@ let removeUser = (req,res) => {
             res.status(200).end("Nombre de lignes supprimée : " + result.affectedRows);
         });
     });
-}
+};
 
 let editUser = (req,res) => {
     res.setHeader("Content-Type","application/json; charset=utf8");
@@ -72,7 +72,7 @@ let editUser = (req,res) => {
             res.status(200).end("Nombre de lignes modifiés: " + result.affectedRows);
         })
     })
-}
+};
 
 let getUserById = (req,res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -87,7 +87,7 @@ let getUserById = (req,res) => {
             res.json(rows);
         });
     });
-}
+};
 
 exports.getUserById = getUserById;
 exports.editUser = editUser;

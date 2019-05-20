@@ -3,7 +3,6 @@ var bodyParser = require('body-parser');
 var mysql = require('mysql');
 var cors = require('cors');
 var jwt = require('jsonwebtoken');
-
 // Calling custom modules
 let tester = require('./testers.js');
 let tests = require('./tests.js');
@@ -11,8 +10,13 @@ let execute = require('./execute.js');
 let test_category = require('./test_category.js');
 //let test = require('./tests.js');
 let version = require('./version.js');
+let analyze = require('./analyze.js');
+var pug = require('pug');
+
 
 var app = express();
+app.set('view engine', 'pug');
+
 app.use(bodyParser.json()); // pour supporter json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); //  pour supporter  encoded url
 
@@ -29,6 +33,9 @@ app.get('/', function(req, res) {
     res.send('Bonjour');
 });
 
+app.get('/test', function (req, res) {
+    res.render('index');
+});
 app.get('/private', function(req, res) {
     res.sendFile( __dirname + "/private/" + "chatmyope.jpg" );
 });
@@ -105,7 +112,6 @@ app.put('/execute/:uId/:tId/:cId',function (req,res) {
 app.get('/execute/:uId/:tId/:cId', function(req, res) {
     execute.getExecuteById(req,res);
 });
-
 //--------------------Version --------------------------------------------------
 app.get('/version', function(req, res) {
     version.getAllVersion(req,res);
@@ -138,7 +144,7 @@ app.post('/test_category', function(req, res) {
 });
 
 //Supprime la catégorie de test selon son Id
-app.remove('/test_category/:catId', function (req, res) {
+app.delete('/test_category/:catId', function (req, res) {
     test_category.removeTestCategory()
 });
 //modifie la categorie de Test selon son id
@@ -150,11 +156,33 @@ app.put('/test_category/:catId',function (req,res) {
 app.get('/test_category/:catId', function(req, res) {
     test_category.getTestCategoryById();
 });
+//--------------------Test_Analyze --------------------------------------------------
+app.get('/analyze', function(req, res) {
+    analyze.getAllAnalyze();
+});
+//Crée une nouvelle categorie de test
+app.post('/analyze', function(req, res) {
+    analyze.addAnalyze();
+});
+
+//Supprime la catégorie de test selon son Id
+app.delete('/analyze/:issId/:tId/:uId', function (req, res) {
+    analyze.removeAnalyze();
+});
+//modifie la categorie de Test selon son id
+app.put('/analyze/:issId/:tId/:uId',function (req,res) {
+    analyze.updateAnalyze();
+});
+
+//affiche une categorie de test particulier
+app.get('/analyze/:issId/:tId/:uId', function(req, res) {
+    analyze.getAnalyzeById();
+});
 
 
 
 //app.use(express.static('forms'));
-app.use('/static', express.static('public'));
+app.use(express.static('public'));
 app.use(function(req, res, next){
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.status(404).send('Lieu inconnu : '+req.originalUrl);

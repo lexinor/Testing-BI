@@ -19,7 +19,6 @@
   "homepage": "https://github.com/mya-lp/mya-testing#readme",
   "dependencies": {
     "body-parser": "^1.18.3",
-    "ejs": "^2.6.1",
     "cors": "^2.8.5",
     "jsonwebtoken": "^8.5.1",
     "express": "^4.16.4",
