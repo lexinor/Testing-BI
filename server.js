@@ -1,11 +1,12 @@
-var express = require('express');
+let express = require('express');
 let cookieParser = require('cookie-parser');
 let session = require('express-session');
 
-var bodyParser = require('body-parser');
-var mysql = require('mysql');
-var cors = require('cors');
-var jwt = require('jsonwebtoken');
+let bodyParser = require('body-parser');
+let mysql = require('mysql');
+let pug = require('pug');
+let cors = require('cors');
+let jwt = require('jsonwebtoken');
 
 // Session handling
 
@@ -23,6 +24,7 @@ var app = express();
 
 app.set('view engine', 'pug');
 
+
 app.use(bodyParser.json()); // pour supporter json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); //  pour supporter  encoded url
 
@@ -39,37 +41,61 @@ let con = mysql.createConnection({
 
 let sess;
 
-app.get('/login', (req,res) => {
+app.post('/login', (req,res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     sess = req.session;
     obj = JSON.parse(JSON.stringify(req.body, null, " "));
-    let token = jwt.sign({ data: Date.now() }, 'secret', { expiresIn: '1h' });
 
-    sess.login = obj.login;
-    sess.token = token;
-    if(sess.login)
-        res.redirect('/login1');
+    sess.mail = obj.mail;
+    if(sess.mail){
+        con.connect(function(err) {
+            if (err) throw err;
+            let sql = mysql.format("SELECT * FROM tester WHERE uMail=? and uPassword=?",[obj.mail, obj.pass]);
+            con.query(sql, function (err, rows, fields) {
+                if (err) throw err;
+                console.log(rows.length);
+                if(rows.length > 0){
+                    res.redirect('/panel');
+                }
+                else{
+                    res.redirect('/');
+                }
+            });
+        });
+    }
+    else{
+        console.log("Erreur de connexion");
+        res.status(400).end('/aaaa');
+    }
+})
+
+
+
+app.get('/panel', (req,res) => {
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    sess = req.session;
+    if(sess.mail){
+        res.status(200).render('index', { mail: sess.mail});
+    }
     else
         res.redirect('/');
 });
 
-app.get('/login1', (req,res) => {
+app.get('/panel', (req,res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     sess = req.session;
     if(sess.login){
-        res.write("Bienvenue : " +sess.login);
-        res.write("Votre token : " +sess.token);
-        res.end();
+        res.render('index');
     }
     else
         res.redirect('/');
 });
 
 
+
 // Homepage
 app.get('/', function(req, res) {
-    res.setHeader("Content-Type", "application/json; charset=utf-8");
-    res.send('Bonjour');
+    res.render('login');
 });
 
 app.get('/testers', function (req, res) {
@@ -82,12 +108,13 @@ app.get('/testers', function (req, res) {
     });
 });
 
+
 //-----------------------------------Fonctions Utilisateurs-------------------------------------------------------------
+
 // Listing all testers
-app.get('/u', function(req, res) {
-    console.log("ouuui");
-  res.render('index');
-});
+app.get('/testers', function(req, res) {
+    tester.getUsers(req,res);
+}   );
 
 // This method add a tester we need to send a JSON object with the user info to succeed
 app.post('/testers', function(req, res) {
@@ -103,7 +130,7 @@ app.delete('/testers/:uId', function (req, res) {
 // You need to send a JSON to modify the user infos
 app.put('/testers/:uId',function (req,res) {
     tester.editUser(req,res);
-});
+})
 
 // This method GET a specific tester using his ID
 app.get('/testers/:uId', function(req, res) {
@@ -155,7 +182,6 @@ app.put('/execute/:uId/:tId/:cId',function (req,res) {
 app.get('/execute/:uId/:tId/:cId', function(req, res) {
     execute.getExecuteById(req,res);
 });
-
 //--------------------Version --------------------------------------------------
 app.get('/version', function(req, res) {
     version.getAllVersion(req,res);
