@@ -18,17 +18,15 @@ html(lang='en')
             // Sidebar
             ul#accordionSidebar.navbar-nav.bg-gradient-primary.sidebar.sidebar-dark.accordion
                 // Sidebar - Brand
-                a.sidebar-brand.d-flex.align-items-center.justify-content-center(href='index.html')
+                a.sidebar-brand.d-flex.align-items-center.justify-content-center(href='/dashboard')
                     .sidebar-brand-icon.rotate-n-15
                         i.fas.fa-laugh-wink
-                    .sidebar-brand-text.mx-3
-                        | SB Admin
-                        sup 2
+                    .sidebar-brand-text.mx-3=pagename
                 // Divider
                 hr.sidebar-divider.my-0
                 // Nav Item - Dashboard
                 li.nav-item
-                    a.nav-link(href='index.html')
+                    a.nav-link(href='/dashboard')
                         i.fas.fa-fw.fa-tachometer-alt
                         span Dashboard
                 // Divider
@@ -58,26 +56,6 @@ html(lang='en')
                             a.collapse-item(href='utilities-border.html') Borders
                             a.collapse-item(href='utilities-animation.html') Animations
                             a.collapse-item(href='utilities-other.html') Other
-                // Divider
-                hr.sidebar-divider
-                // Heading
-                .sidebar-heading
-                    | Addons
-                // Nav Item - Pages Collapse Menu
-                li.nav-item.active
-                    a.nav-link(href='#', data-toggle='collapse', data-target='#collapsePages', aria-expanded='true', aria-controls='collapsePages')
-                        i.fas.fa-fw.fa-folder
-                        span Pages
-                    #collapsePages.collapse.show(aria-labelledby='headingPages', data-parent='#accordionSidebar')
-                        .bg-white.py-2.collapse-inner.rounded
-                            h6.collapse-header Login Screens:
-                            a.collapse-item(href='login.html') Login
-                            a.collapse-item(href='register.html') Register
-                            a.collapse-item(href='forgot-password.html') Forgot Password
-                            .collapse-divider
-                            h6.collapse-header Other Pages:
-                            a.collapse-item(href='404.html') 404 Page
-                            a.collapse-item.active(href='blank.html') Blank Page
                 // Nav Item - Charts
                 li.nav-item
                     a.nav-link(href='charts.html')
@@ -202,8 +180,7 @@ html(lang='en')
                             // Nav Item - User Information
                             li.nav-item.dropdown.no-arrow
                                 a#userDropdown.nav-link.dropdown-toggle(href='#', role='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
-                                    span.mr-2.d-none.d-lg-inline.text-gray-600.small #{mail}
-                                    img.img-profile.rounded-circle(src='')
+                                    span.mr-2.d-none.d-lg-inline.text-gray-600.small="Connected as "+mail
                                 // Dropdown - User Information
                                 .dropdown-menu.dropdown-menu-right.shadow.animated--grow-in(aria-labelledby='userDropdown')
                                     a.dropdown-item(href='#')
@@ -216,7 +193,7 @@ html(lang='en')
                                         i.fas.fa-list.fa-sm.fa-fw.mr-2.text-gray-400
                                         |                   Activity Log
                                     .dropdown-divider
-                                    a.dropdown-item(href='#', data-toggle='modal', data-target='#logoutModal')
+                                    a.dropdown-item(href='/destroy', data-toggle='modal', data-target='#logoutModal')
                                         i.fas.fa-sign-out-alt.fa-sm.fa-fw.mr-2.text-gray-400
                                         |                   Logout
                     // End of Topbar
@@ -251,7 +228,7 @@ html(lang='en')
                                 .modal-body Select "Logout" below if you are ready to end your current session.
                                 .modal-footer
                                     button.btn.btn-secondary(type='button', data-dismiss='modal') Cancel
-                                    a.btn.btn-primary(href='login.html') Logout
+                                    a.btn.btn-primary(href='/destroy') Logout
                     // Bootstrap core JavaScript
                     script(src='/vendor/jquery/jquery.min.js')
                     script(src='/vendor/bootstrap/js/bootstrap.bundle.min.js')

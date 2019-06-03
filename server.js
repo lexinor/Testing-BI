@@ -81,10 +81,14 @@ app.get('/destroy', (req, res) => {
 app.get('/dashboard', (req, res) => {
     sess = req.session
     if(sess.mail){
-        res.render('dashboard');
+        res.render('dashboard', { mail: sess.mail, pagename: "Dashboard" } );
     }else{
         res.redirect('/');
     }
+})
+
+app.get('/login', (req, res) => {
+    res.render('login');
 })
 
 // Homepage
@@ -98,11 +102,18 @@ app.get('/', function(req, res) {
 
 
 app.get('/testers', function (req, res) {
-    con.query('SELECT *  FROM tester ', (err, rows, fields) => {
-        if (err) throw err;
-        console.log(fields);
-        res.render('read_testers', { rows : rows});
-    });
+    sess =  req.session;
+    if(sess.mail){
+        con.query('SELECT *  FROM tester ', (err, rows, fields) => {
+            if (err) throw err;
+            console.log(fields);
+            res.render('read_testers', { rows : rows, mail: sess.mail, pagename: "Testers Page" });
+        });
+    }
+    else{
+        res.redirect('/');
+    }
+
 });
 
 //-----------------------------------Fonctions Utilisateurs-------------------------------------------------------------
