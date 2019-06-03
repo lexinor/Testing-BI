@@ -48,11 +48,19 @@ app.post('/login', function(req, res) {
 
             let uId = rows[0].uId;
             let mail = obj.mail;
+            let rank = rows[0].rank;
 
-            if(uId != null){
+            if(uId != null && rank != 0){
                 req.session.mail = mail;
                 req.session.userId = uId;
+                req.session.rank = rank;
                 res.redirect('/dashboard')
+            }
+            else if(uId != null && rank == 0){
+                req.session.mail = mail;
+                req.session.userId = uId;
+                req.session.rank = rank;
+                res.redirect('/user')
             }
             else{
                 res.redirect('/');
@@ -66,6 +74,7 @@ app.post('/login', function(req, res) {
 });
 
 app.get('/destroy', (req, res) => {
+
     if(req.session){
         req.session.destroy((err) => {
             console.log('Session destroyed');
@@ -77,6 +86,14 @@ app.get('/destroy', (req, res) => {
         res.redirect('/login');
     }
 });
+
+app.get('/user', (req, res) => {
+    sess = req.session;
+    if(sess.mail)
+        res.render('index', { mail: sess.mail, pagename: "User page"});
+    else
+        res.render('login');
+})
 
 app.get('/dashboard', (req, res) => {
     sess = req.session
@@ -102,18 +119,16 @@ app.get('/', function(req, res) {
 
 
 app.get('/testers', function (req, res) {
-    sess =  req.session;
+    sess =  req.sesasion;
     if(sess.mail){
         con.query('SELECT *  FROM tester ', (err, rows, fields) => {
             if (err) throw err;
-            console.log(fields);
             res.render('read_testers', { rows : rows, mail: sess.mail, pagename: "Testers Page" });
         });
     }
     else{
         res.redirect('/');
     }
-
 });
 
 //-----------------------------------Fonctions Utilisateurs-------------------------------------------------------------
