@@ -78,6 +78,15 @@ app.get('/destroy', (req, res) => {
     }
 });
 
+app.get('/dashboard', (req, res) => {
+    sess = req.session
+    if(sess.mail){
+        res.render('dashboard');
+    }else{
+        res.redirect('/');
+    }
+})
+
 // Homepage
 app.get('/', function(req, res) {
     sess = req.session;
