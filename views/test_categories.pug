@@ -2,9 +2,9 @@ extends base.pug
 
 block content
 
-    a.btn.btn-outline-lightnav-link(href='addtester')
+    a.btn.btn-outline-lightnav-link(href='addtest_category')
         i.fas.fa-fw.fa-bus-alt
-        span Ajouter un testeur
+        span Ajouter une catégorie de test
     table#dataTable.table.table-striped
         thead
             tr
@@ -19,5 +19,5 @@ block content
                 td= n.uFirstName
                 td= n.uMail
                 td
-                    button.btn.btn-outline-primary(onclick="location.href='/tester/" + n.uId + "'" , type='button')
+                    button.btn.btn-outline-primary(onclick="location.href='/test_category/" + n.uId + "'" , type='button')
                         | Modifier

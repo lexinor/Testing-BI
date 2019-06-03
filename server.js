@@ -30,7 +30,8 @@ let con = mysql.createConnection({
     host: "localhost",
     user: "nodeuser",
     password: "node",
-    database: "db_testing"
+    database:"db_testing",
+    port : 8889 // to comment when using WINDOWS
 });
 
 let sess;
@@ -79,13 +80,13 @@ app.get('/destroy', (req, res) => {
 });
 
 app.get('/dashboard', (req, res) => {
-    sess = req.session
+    sess = req.session;
     if(sess.mail){
         res.render('dashboard');
     }else{
         res.redirect('/');
     }
-})
+});
 
 // Homepage
 app.get('/', function(req, res) {
@@ -250,8 +251,14 @@ app.get('/version/:sId/:rId/:vId', function(req, res) {
     version.getVersionById(req,res);
 });
 //--------------------Test_Category --------------------------------------------------
-app.get('/test_category', function(req, res) {
-    test_category.getAllTestCategory();
+app.get('/test_categorys', function(req, res) {
+    con.query('SELECT *  FROM software ', (err, rows, fields) => {
+        if (err) {
+            return next(err);
+        }
+        console.log(fields);
+        res.render('read_software', { rows : rows});
+    });
 });
 //Crée une nouvelle categorie de test
 app.post('/test_category', function(req, res) {
@@ -333,7 +340,26 @@ app.post('/software', function(req, res) {
                 res.status(403).end("Erreur");
             }
         });
-    res.redirect('/testers');
+    res.redirect('/softwares');
+});
+app.get('/software/:id', function(req, res) {
+    let id = req.params.id;
+    let sql = mysql.format("SELECT * FROM software WHERE sId=?",id);
+    con.query(sql, function (err, rows, fields) {
+        if (err) throw err;
+        res.render('update_software', { 'software' : rows[0]  })
+
+    });
+});
+app.post('/software/updatesoftware', function(req, res) {
+    obj = JSON.parse(JSON.stringify(req.body, null, " "));
+    let sql = mysql.format("UPDATE software SET sName=?, sDescription=? WHERE sId=?",
+        [obj.name, obj.description,obj.id]);
+    con.query(sql,function (err, result) {
+        if(err) throw err;
+        res.status(200).end("Nombre de lignes modifiés: " + result.affectedRows);
+    });
+    res.redirect('/softwares');
 });
 
 //app.use(express.static('forms'));
