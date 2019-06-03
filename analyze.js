@@ -21,7 +21,6 @@ let getAllAnalyze = (req,res) => {
     });
 };
 
-
 //Crée une nouvelle éxécution
 let addAnalyze = (req, res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");

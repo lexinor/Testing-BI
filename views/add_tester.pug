@@ -1,0 +1,18 @@
+extends base.pug
+
+
+block content
+    form(method='post', action='tester', enctype='multipart/form-data')
+        .form-group
+            label.col-form-label(for='a') Nom
+            input#a.form-control(type='text', placeholder='Default input', name="uLastName")
+
+        .form-group
+            label.col-form-label(for='b') Prénom
+            input#b.form-control(type='text', placeholder='Default input', name="uFirstName" )
+
+        .form-group
+            label.col-form-label(for='c') Mail
+            input#c.form-control(type='text', placeholder='Default input', name="uMail")
+
+            button.btn.btn-success(type='submit') Success

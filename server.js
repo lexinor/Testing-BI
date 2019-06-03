@@ -19,7 +19,6 @@ let test_category = require('./test_category.js');
 //let test = require('./tests.js');
 let version = require('./version.js');
 let analyze = require('./analyze.js');
-var pug = require('pug');
 var app = express();
 
 app.set('view engine', 'pug');
@@ -29,7 +28,7 @@ app.use(bodyParser.json()); // pour supporter json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); //  pour supporter  encoded url
 
 app.use(cookieParser());
-app.use(session({ secret: "toto", resave: false, saveUninitialized: false, cookie: { maxAge: 6000} }));
+app.use(session({ secret: "toto", resave: false, saveUninitialized: false, cookie: { maxAge: 6000000} }));
 
 let con = mysql.createConnection({
     host: "localhost",
@@ -48,8 +47,6 @@ app.post('/login', (req,res) => {
 
     sess.mail = obj.mail;
     if(sess.mail){
-        con.connect(function(err) {
-            if (err) throw err;
             let sql = mysql.format("SELECT * FROM tester WHERE uMail=? and uPassword=?",[obj.mail, obj.pass]);
             con.query(sql, function (err, rows, fields) {
                 if (err) throw err;
@@ -61,13 +58,12 @@ app.post('/login', (req,res) => {
                     res.redirect('/');
                 }
             });
-        });
     }
     else{
         console.log("Erreur de connexion");
         res.status(400).end('/aaaa');
     }
-})
+});
 
 
 
@@ -98,6 +94,7 @@ app.get('/', function(req, res) {
     res.render('login');
 });
 
+
 app.get('/testers', function (req, res) {
     con.query('SELECT *  FROM tester ', (err, rows, fields) => {
         if (err) {
@@ -108,8 +105,35 @@ app.get('/testers', function (req, res) {
     });
 });
 
-
 //-----------------------------------Fonctions Utilisateurs-------------------------------------------------------------
+app.get('/addtester', function(req, res) {
+res.render('add_tester')
+});
+// This method add a tester we need to send a JSON object with the user info to succeed
+app.post('/tester', function(req, res) {
+    obj = JSON.parse(JSON.stringify(req.body, null, " "));
+    con.query("INSERT INTO tester (uLastName, uFirstName, uPassword, uMail) VALUES (?,?,?,?)",
+        [obj.uLastName, obj.uFirstName, '1234', obj.uMail],
+        function (err, result) {
+        if (err) throw err;
+        if(result.affectedRows > 0){
+            console.log("1 record inserted");
+            res.status(200).end("Okay");
+        }
+        else{
+            console.log("No rows affected");
+            res.status(403).end("Erreur");
+        }
+    });
+    res.redirect('/testers');
+});
+
+
+
+// This method add a tester we need to send a JSON object with the user info to succeed
+app.post('/testers', function(req, res) {
+    tester.addUser(req,res);
+});
 
 // Listing all testers
 app.get('/testers', function(req, res) {
@@ -248,6 +272,30 @@ app.put('/analyze/:issId/:tId/:uId',function (req,res) {
 app.get('/analyze/:issId/:tId/:uId', function(req, res) {
     analyze.getAnalyzeById();
 });
+app.get('/software', function (req, res) {
+    con.query('SELECT *  FROM software ', (err, rows, fields) => {
+        if (err) {
+            return next(err);
+        }
+        console.log(fields);
+        res.render('read_software', { rows : rows});
+    });
+});
+
+app.get('/tests', function (req, res) {
+    console.log('oui');
+    con.query('SELECT *  FROM Test ', (err, rows, fields) => {
+        if (err) {
+            return next(err);
+        }
+        res.render('read_test', { rows : rows });
+    });
+});
+
+app.get('/addsoftware', function(req, res) {
+    res.render('add_software')
+});
+
 
 //app.use(express.static('forms'));
 app.use(express.static('public'));

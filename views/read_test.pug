@@ -1,0 +1,26 @@
+extends base.pug
+
+block content
+
+    a.nav-link(href='addtest')
+        i.fas.fa-fw.fa-bus-alt
+        span Ajouter un test
+    table.table.table-striped
+        tr
+            th Nom
+            th Description
+            th Date de début
+            th Modifier
+
+        each n in rows
+            tr
+                td= n.tDescription
+                td= n.tDateCreation
+                td= n.duration
+                td
+                    button(onclick="location.href='/addSoftware'", type='button')
+                        | Modifier
+
+
+
+

@@ -2,6 +2,9 @@ extends base.pug
 
 block content
 
+    a.nav-link(href='addtester')
+        i.fas.fa-fw.fa-bus-alt
+        span Ajouter un testeur
     table.table.table-striped
         tr
             th Nom
@@ -15,7 +18,8 @@ block content
                 td= n.uFirstName
                 td= n.uMail
                 td
-                    button( ng-click='local.points = local.points + 10') Up
+                    button(onclick="location.href='/'", type='button')
+                        | Modifier
 
 
 
