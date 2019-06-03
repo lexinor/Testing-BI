@@ -1,15 +1,11 @@
-let express = require('express');
-let cookieParser = require('cookie-parser');
-let session = require('express-session');
+const express = require('express');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
 
-let bodyParser = require('body-parser');
-let mysql = require('mysql');
-let pug = require('pug');
-let cors = require('cors');
-let jwt = require('jsonwebtoken');
-
-// Session handling
-
+const bodyParser = require('body-parser');
+const mysql = require('mysql');
+const pug = require('pug');
+const request = require('request');
 
 // Calling custom modules
 let tester = require('./testers.js');
@@ -28,78 +24,82 @@ app.use(bodyParser.json()); // pour supporter json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); //  pour supporter  encoded url
 
 app.use(cookieParser());
-app.use(session({ secret: "toto", resave: false, saveUninitialized: false, cookie: { maxAge: 6000000} }));
+app.use(session({ secret: "toto", resave: false, saveUninitialized: false, cookie: { maxAge: 900000} }));
 
 let con = mysql.createConnection({
     host: "localhost",
     user: "nodeuser",
     password: "node",
-    database: "db_testing",
-    port: "8889"
+    database: "db_testing"
 });
 
 let sess;
 
-app.post('/login', (req,res) => {
-    res.setHeader("Content-Type", "application/json; charset=utf-8");
-    sess = req.session;
-    obj = JSON.parse(JSON.stringify(req.body, null, " "));
+// -------- LOGIN-IN -------- //
 
-    sess.mail = obj.mail;
-    if(sess.mail){
-            let sql = mysql.format("SELECT * FROM tester WHERE uMail=? and uPassword=?",[obj.mail, obj.pass]);
-            con.query(sql, function (err, rows, fields) {
-                if (err) throw err;
-                console.log(rows.length);
-                if(rows.length > 0){
-                    res.redirect('/panel');
-                }
-                else{
-                    res.redirect('/');
-                }
-            });
+app.post('/login', function(req, res) {
+    res.set("Content-Type", "application/json; charset=utf-8");
+    obj = JSON.parse(JSON.stringify(req.body,null," "));
+
+    let sql = mysql.format("SELECT * FROM tester WHERE uMail=? and uPassword=?",[obj.mail, obj.pass]);
+    con.query(sql, function (err, rows, fields) {
+        if (err) throw err;
+        if(rows.length > 0){
+
+            let uId = rows[0].uId;
+            let mail = obj.mail;
+
+            if(uId != null){
+                req.session.mail = mail;
+                req.session.userId = uId;
+                res.redirect('/dashboard')
+            }
+            else{
+                res.redirect('/');
+            }
+        }
+        else{
+            console.log("No account found");
+            res.redirect('/');
+        }
+    });
+});
+
+app.get('/destroy', (req, res) => {
+    if(req.session){
+        req.session.destroy((err) => {
+            console.log('Session destroyed');
+            res.redirect('/');
+        })
     }
     else{
-        console.log("Erreur de connexion");
-        res.status(400).end('/aaaa');
+        console.log('No session detected');
+        res.redirect('/login');
     }
 });
 
-
-
-app.get('/panel', (req,res) => {
-    res.setHeader("Content-Type", "text/html; charset=utf-8");
-    sess = req.session;
+app.get('/dashboard', (req, res) => {
+    sess = req.session
     if(sess.mail){
-        res.status(200).render('index', { mail: sess.mail});
-    }
-    else
+        res.render('dashboard');
+    }else{
         res.redirect('/');
-});
-
-app.get('/panel', (req,res) => {
-    res.setHeader("Content-Type", "application/json; charset=utf-8");
-    sess = req.session;
-    if(sess.login){
-        res.render('index');
     }
-    else
-        res.redirect('/');
-});
-
-
+})
 
 // Homepage
 app.get('/', function(req, res) {
-    res.render('login');
+    sess = req.session;
+    if(sess.mail)
+        res.redirect('/dashboard');
+    else
+        res.render('login');
 });
 
 
 app.get('/testers', function (req, res) {
     con.query('SELECT *  FROM tester ', (err, rows, fields) => {
-        if (err) {
-            return next(err);
-        }
+        if (err) throw err;
         console.log(fields);
         res.render('read_testers', { rows : rows});
     });
@@ -107,8 +107,9 @@ app.get('/testers', function (req, res) {
 
 //-----------------------------------Fonctions Utilisateurs-------------------------------------------------------------
 app.get('/addtester', function(req, res) {
-res.render('add_tester')
+    res.render('add_tester')
 });
+
 // This method add a tester we need to send a JSON object with the user info to succeed
 app.post('/tester', function(req, res) {
     obj = JSON.parse(JSON.stringify(req.body, null, " "));
