@@ -1,0 +1,21 @@
+extends base.pug
+
+
+block content
+    form(method='post', action='updatetester', enctype="application/json")
+        .form-group
+            label.col-form-label(for='a') Nom
+            input#a.form-control(type='text', placeholder='Default input', value=tester.uLastName, name="uLastName")
+
+        .form-group
+            label.col-form-label(for='b') Prénom
+            input#b.form-control(type='text', placeholder='Default input', value=tester.uFirstName , name="uFirstName" )
+
+        .form-group
+            label.col-form-label(for='c') Mail
+            input#c.form-control(type='text', placeholder='Default input', value=tester.uMail, name="uMail")
+
+        .form-group
+            input(type='hidden', placeholder='Default input', value=tester.uId, name="id")
+
+        button.btn.btn-success(type='submit') Success
