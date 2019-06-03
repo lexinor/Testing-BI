@@ -4,18 +4,18 @@ block content
     a.nav-link(href='addsoftware')
         i.fas.fa-fw.fa-bus-alt
         span Ajouter un logiciel
-    table.table.table-striped
-        tr
-            th Nom
-            th Description
-            th Date de début
-            th Modifier
-
+    table#dataTable.table.table-striped
+        thead
+            tr
+                th Nom
+                th Description
+                th Date de début
+                th Modifier
         each n in rows
             tr
                 td= n.sName
-                    td= n.sDescription
+                td= n.sDescription
                 td= n.sEntryDate
                 td
-                    button(onclick="location.href='/addSoftware'", type='button')
+                    button.btn.btn-outline-primary(onclick="location.href='/software/" + n.sId + "'", type='button')
                         | Modifier
