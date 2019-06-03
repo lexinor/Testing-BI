@@ -262,13 +262,12 @@ app.get('/version/:sId/:rId/:vId', function(req, res) {
     version.getVersionById(req,res);
 });
 //--------------------Test_Category --------------------------------------------------
-app.get('/test_categorys', function(req, res) {
-    con.query('SELECT *  FROM software ', (err, rows, fields) => {
+app.get('/test_categories', function(req, res) {
+    con.query('SELECT *  FROM Test_Category ', (err, rows, fields) => {
         if (err) {
-            return next(err);
+            throw err;
         }
-        console.log(fields);
-        res.render('read_software', { rows : rows});
+        res.render('read_test_categories', { rows : rows});
     });
 });
 //Crée une nouvelle categorie de test
@@ -318,7 +317,6 @@ app.get('/softwares', function (req, res) {
         if (err) {
             return next(err);
         }
-        console.log(fields);
         res.render('read_software', { rows : rows});
     });
 });
@@ -373,6 +371,27 @@ app.post('/software/updatesoftware', function(req, res) {
     res.redirect('/softwares');
 });
 
+app.get('/add_test_category', function(req, res) {
+    res.render('add_test_category')
+});
+app.post('/test_category', function(req, res) {
+    console.log("allez")
+    obj = JSON.parse(JSON.stringify(req.body, null, " "));
+    con.query("INSERT INTO test_category (catLabel) VALUES (?)",
+        [obj.label],
+        function (err, result) {
+            if (err) throw err;
+            if(result.affectedRows > 0){
+                console.log("1 record inserted");
+                res.status(200).end("Okay");
+            }
+            else{
+                console.log("No rows affected");
+                res.status(403).end("Erreur");
+            }
+        });
+    res.redirect('/test_categories');
+});
 //app.use(express.static('forms'));
 app.use(express.static('public'));
 app.use(function(req, res, next){

@@ -2,22 +2,18 @@ extends base.pug
 
 block content
 
-    a.btn.btn-outline-lightnav-link(href='addtest_category')
-        i.fas.fa-fw.fa-bus-alt
+    a.btn.btn-outline-lightnav-link(href='add_test_category')
+        i.fas.fa-fw.fa-plus-circle
         span Ajouter une catégorie de test
     table#dataTable.table.table-striped
         thead
             tr
-                th Nom
-                th Prénom
-                th Email
+                th Libellé
                 th Modifier
 
         each n in rows
             tr
-                td= n.uLastName
-                td= n.uFirstName
-                td= n.uMail
+                td= n.catLabel
                 td
                     button.btn.btn-outline-primary(onclick="location.href='/test_category/" + n.uId + "'" , type='button')
                         | Modifier
