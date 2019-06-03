@@ -127,8 +127,28 @@ app.post('/tester', function(req, res) {
     });
     res.redirect('/testers');
 });
+// This method add a tester we need to send a JSON object with the user info to succeed
+app.get('/tester/:id', function(req, res) {
+    let uId = req.params.id;
+    let sql = mysql.format("SELECT * FROM tester WHERE uId=?",uId);
+    con.query(sql, function (err, rows, fields) {
+        if (err) throw err;
+        console.log(rows[0]);
+        res.render('update_tester', { 'tester' : rows[0]  })
 
+    });
+});
 
+app.post('/tester/updatetester', function(req, res) {
+    obj = JSON.parse(JSON.stringify(req.body, null, " "));
+    let sql = mysql.format("UPDATE tester SET uLastName=?, uFirstName=?, uMail=? WHERE uId=?",
+        [obj.uLastName, obj.uFirstName,  obj.uMail,obj.id]);
+    con.query(sql,function (err, result) {
+        if(err) throw err;
+        res.status(200).end("Nombre de lignes modifiés: " + result.affectedRows);
+    });
+    res.redirect('/testers');
+});
 
 // This method add a tester we need to send a JSON object with the user info to succeed
 app.post('/testers', function(req, res) {
@@ -272,7 +292,9 @@ app.put('/analyze/:issId/:tId/:uId',function (req,res) {
 app.get('/analyze/:issId/:tId/:uId', function(req, res) {
     analyze.getAnalyzeById();
 });
-app.get('/software', function (req, res) {
+
+
+app.get('/softwares', function (req, res) {
     con.query('SELECT *  FROM software ', (err, rows, fields) => {
         if (err) {
             return next(err);
@@ -295,7 +317,23 @@ app.get('/tests', function (req, res) {
 app.get('/addsoftware', function(req, res) {
     res.render('add_software')
 });
-
+app.post('/software', function(req, res) {
+    obj = JSON.parse(JSON.stringify(req.body, null, " "));
+    con.query("INSERT INTO software (sName, sDescription, sEntryDate) VALUES (?,?,?)",
+        [obj.name, obj.description, obj.startDate ],
+        function (err, result) {
+            if (err) throw err;
+            if(result.affectedRows > 0){
+                console.log("1 record inserted");
+                res.status(200).end("Okay");
+            }
+            else{
+                console.log("No rows affected");
+                res.status(403).end("Erreur");
+            }
+        });
+    res.redirect('/testers');
+});
 
 //app.use(express.static('forms'));
 app.use(express.static('public'));

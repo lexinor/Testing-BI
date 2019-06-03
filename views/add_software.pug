@@ -5,14 +5,14 @@ block content
     form(method='post', action='software', enctype='multipart/form-data')
         .form-group
             label.col-form-label(for='a') Nom
-            input#a.form-control(type='text', placeholder : ='Default input', name="uLastName")
+            input#a.form-control(type='text', placeholder : ='Default input', name="name")
 
         .form-group
             label.col-form-label(for='b') Description
-            input#b.form-control(type='text', placeholder='Default input', name="uFirstName" )
+            input#b.form-control(type='text', placeholder='Default input', name="description" )
 
         .form-group
             label.col-form-label(for='c') Date de début
-            input#c.form-control(type='text', placeholder='Default input', name="uMail")
+            input#c.form-control(type='date', placeholder='Default input', name="startDate")
 
             button.btn.btn-success(type='submit') Success

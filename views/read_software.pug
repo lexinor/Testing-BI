@@ -17,5 +17,5 @@ block content
                     td= n.sDescription
                 td= n.sEntryDate
                 td
-                    button(onclick="location.href='/addSoftware'", type='button')
+                    button.btn.btn-outline-primary(onclick="location.href='/software/" + n.sId + "'", type='button')
                         | Modifier
