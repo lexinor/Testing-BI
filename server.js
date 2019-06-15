@@ -8,13 +8,12 @@ const pug = require('pug');
 const request = require('request');
 
 // Calling custom modules
-let tester = require('./testers.js');
-let tests = require('./tests.js');
-let execute = require('./execute.js');
-let test_category = require('./test_category.js');
+//let tester = require('./testers.js');
+//let tests = require('./tests.js');
+//let execute = require('./execute.js');
+//let test_category = require('./test_category.js');
 //let test = require('./tests.js');
-let version = require('./version.js');
-let analyze = require('./analyze.js');
+//let analyze = require('./analyze.js');
 var app = express();
 
 app.set('view engine', 'pug');
@@ -31,7 +30,6 @@ let con = mysql.createConnection({
     user: "nodeuser",
     password: "node",
     database:"db_testing",
-    port : 8889 // to comment when using WINDOWS
 });
 
 let sess;
@@ -243,10 +241,7 @@ app.get('/execute/:uId/:tId/:cId', function(req, res) {
 app.get('/version', function(req, res) {
     version.getAllVersion(req,res);
 });
-//Crée une nouvelle éxécution
-app.post('/version', function(req, res) {
-    version.addVersion(req,res);
-});
+
 
 //Supprime l'éxécution selon son Id
 app.delete('/version/:sId/:rId/:vId', function (req, res) {
@@ -263,18 +258,13 @@ app.get('/version/:sId/:rId/:vId', function(req, res) {
 });
 //--------------------Test_Category --------------------------------------------------
 app.get('/test_categories', function(req, res) {
-    con.query('SELECT *  FROM Test_Category ', (err, rows, fields) => {
+    con.query('SELECT *  FROM test_category ', (err, rows, fields) => {
         if (err) {
             throw err;
         }
         res.render('read_test_categories', { rows : rows});
     });
 });
-//Crée une nouvelle categorie de test
-app.post('/test_category', function(req, res) {
-    test_category.addTestCategory()
-});
-
 //Supprime la catégorie de test selon son Id
 app.delete('/test_category/:catId', function (req, res) {
     test_category.removeTestCategory()
@@ -330,7 +320,140 @@ app.get('/tests', function (req, res) {
         res.render('read_test', { rows : rows });
     });
 });
+//CRUD CAMPAIGN TEST
 
+app.get('/addcampaigntest', function(req, res) {
+    let sql = mysql.format("select version.vId as vid, version.rId as rid, version.sId as sid, software.sName from version INNER JOIN software on software.sId = version.sId ");
+    con.query(sql, function (err, rows, fields) {
+        if (err) throw err;
+        res.render('add_campaign_test', { softwares: rows});
+    });
+});
+app.post('/campaigntest', function(req, res) {
+
+    objReq = JSON.parse(JSON.stringify(req.body, null, " "));
+
+   var x= objReq.software;
+ //  var array = x.split(",");
+ //var y = x.split(",");
+    var obj = JSON.parse(x);
+    var sid = (obj["sid"]);
+    var rid = (obj["rid"]);
+    var vid = (obj["vid"]);
+
+    con.query("INSERT INTO campaigntest (cDescription, duration, sId, rId, vId)" +
+        " VALUES (?,?,?,?,?)",
+        [objReq.description, objReq.duration, sid, rid, vid],
+        function (err, result) {
+            if (err) throw err;
+            if(result.affectedRows > 0){
+                console.log("1 record inserted");
+                res.status(200).end("Okay");
+            }
+            else{
+                console.log("No rows affected");
+                res.status(403).end("Erreur");
+            }
+        });
+    res.redirect('/campaignstests');
+});
+
+app.get('/campaignstests', function (req, res) {
+    con.query('SELECT duration, cDescription, software.sName as softwareName FROM campaigntest INNER JOIN' +
+        ' software on software.sId = campaigntest.sId', (err, rows, fields) => {
+        if (err) {
+            throw err;
+        }
+        res.render('read_campaign_test', { rows : rows});
+    });
+});
+app.get('/campaigntest/:id', function(req, res) {
+    let id = req.params.id;
+    let sql = mysql.format("SELECT * FROM campaigntest WHERE cId=?",id);
+    con.query(sql, function (err, rows, fields) {
+        if (err) throw err;
+        res.render('update_campaign_test', { 'software' : rows[0]  })
+
+    });
+});
+
+//CRUD version
+//CRUD CAMPAIGN TEST
+
+app.get('/addversion/:idSoftware/:idRelease', function(req, res) {
+    res.render('add_version', {  idSoftware: req.params.idSoftware, idRelease: req.params.idRelease});
+});
+app.post('/version', function(req, res) {
+    console.log("yes");
+    obj = JSON.parse(JSON.stringify(req.body, null, " "));
+
+    con.query("INSERT INTO version (sId, rId, vId, vLabel, vDescription)" +
+        " VALUES (?,?,?,?,?)",
+        [obj.idSoftware, obj.idRelease, obj.vId, obj.vLabel, obj.vDescription],
+        function (err, result) {
+            if (err) throw err;
+            if(result.affectedRows > 0){
+                console.log("1 record inserted");
+                res.redirect('/versions/' + obj.idSoftware +"/" + obj.idRelease);
+            }
+            else{
+                console.log("No rows affected");
+                res.status(403).end("Erreur");
+            }
+        });
+});
+
+app.get('/versions/:idSoftware/:idRelease', function (req, res) {
+    con.query('SELECT * from version where sId = ? and rId = ?', [req.params.idSoftware, req.params.idRelease]
+        , (err, rows, fields) => {
+            if (err) {
+                throw err;
+            }
+            res.render('read_versions', {rows: rows, idSoftware: req.params.idSoftware, idRelease: req.params.idRelease});
+        });
+});
+
+
+
+//CRUD CAMPAIGN TEST
+
+app.get('/addsoftwarerelease/:id', function(req, res) {
+        res.render('add_software_release', {  idSoftware: req.params.id});
+});
+app.post('/softwarerelease', function(req, res) {
+
+    obj = JSON.parse(JSON.stringify(req.body, null, " "));
+
+    con.query("INSERT INTO software_release (sId, rId, rVersion)" +
+        " VALUES (?,?,?)",
+        [obj.idSoftware, obj.idRelease, obj.release],
+        function (err, result) {
+            if (err) throw err;
+            if(result.affectedRows > 0){
+                console.log("1 record inserted");
+                res.redirect('/softwarerelease/' + obj.idSoftware);
+            }
+            else{
+                console.log("No rows affected");
+                res.status(403).end("Erreur");
+            }
+        });
+});
+
+app.get('/softwarerelease/:id', function (req, res) {
+    con.query('SELECT * from software_release where sId = ?', [req.params.id], (err, rows, fields) => {
+        if (err) {
+            throw err;
+        }
+        res.render('read_software_release', { rows : rows, idSoftware : req.params.id});
+    });
+});
+
+
+
+
+
+//CRUD SOFTWARE
 app.get('/addsoftware', function(req, res) {
     res.render('add_software')
 });
@@ -375,7 +498,6 @@ app.get('/add_test_category', function(req, res) {
     res.render('add_test_category')
 });
 app.post('/test_category', function(req, res) {
-    console.log("allez")
     obj = JSON.parse(JSON.stringify(req.body, null, " "));
     con.query("INSERT INTO test_category (catLabel) VALUES (?)",
         [obj.label],
@@ -383,14 +505,43 @@ app.post('/test_category', function(req, res) {
             if (err) throw err;
             if(result.affectedRows > 0){
                 console.log("1 record inserted");
-                res.status(200).end("Okay");
+                res.redirect('/test_categories');
             }
             else{
                 console.log("No rows affected");
                 res.status(403).end("Erreur");
             }
         });
-    res.redirect('/test_categories');
+});
+//issue type
+
+
+app.get('/add_issue_type', function(req, res) {
+    res.render('add_issue_type');
+});
+app.post('/issue_type', function(req, res) {
+    obj = JSON.parse(JSON.stringify(req.body, null, " "));
+    con.query("INSERT INTO issue_type (itLabel) VALUES (?)",
+        [obj.label],
+        function (err, result) {
+            if (err) throw err;
+            if(result.affectedRows > 0){
+                console.log("1 record inserted");
+                res.redirect('/issues_types');
+            }
+            else{
+                console.log("No rows affected");
+                res.status(403).end("Erreur");
+            }
+        });
+});
+app.get('/issues_types', function(req, res) {
+    con.query('SELECT *  FROM issue_type ', (err, rows, fields) => {
+        if (err) {
+            throw err;
+        }
+        res.render('read_issue_type', { rows : rows});
+    });
 });
 //app.use(express.static('forms'));
 app.use(express.static('public'));

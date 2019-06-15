@@ -11,6 +11,7 @@ block content
                 th Description
                 th Date de début
                 th Modifier
+                th Releases
         each n in rows
             tr
                 td= n.sName
@@ -19,3 +20,6 @@ block content
                 td
                     button.btn.btn-outline-primary(onclick="location.href='/software/" + n.sId + "'", type='button')
                         | Modifier
+                td
+                    a.btn.btn-outline-warning(href="/softwarerelease/" + n.sId )
+                        | Releases
