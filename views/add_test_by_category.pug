@@ -2,21 +2,26 @@ extends base.pug
 
 
 block content
-    form(method='post', action='addtestbycat', enctype='application/json')
-        .form-group
-            label.col-form-label(for='category') Catégorie du test
-            select#category.form-control(name="cat" required)
-                - for(var cat of categories)
-                    option(value=cat.catId)=cat.catLabel
-        .form-group
-            label.col-form-label(for='description') Test description
-            textarea#description.form-control(name="description" required)
-        .form-group
-            label.col-form-label(for='date') Date de création
-            input#date.form-control(type="date" name="datecrea" required)
-        .form-group
-            label.col-form-label(for='duration') Durée du test
-            input#duration.form-control(type="text" name="duration" required)
-        .form-group
-            button.btn.btn-success(type='submit') Ajouter
-            a.btn.btn-danger(href="/dashboard") Retour
+    .col-5
+        form(method='post', action='addtestbycat', enctype='application/json')
+            .form-group
+                label.col-form-label(for='testcat') Catégorie du test
+                select#testcat.form-control(name="testcat" required)
+                    - for(var cat of testcategories)
+                        option(value=cat.catId)=cat.catLabel
+
+                label.col-form-label(for='testcamplist') Campagne de test
+                select#testcamplist.form-control(name="camplist" required)
+                    - for(var campaign of testcampaignlist)
+                        option(value=campaign.cId)=campaign.cDescription
+            .form-group
+                label.col-form-label(for='date') Date de création du test
+                input#date.form-control(type="date" name="datecrea" required)
+                label.col-form-label(for='duration') Durée du test
+                input#duration.form-control(type="text" name="duration" required)
+            .form-group
+                label.col-form-label(for='description') Description du test
+                textarea#description.form-control(name="description" required)
+            .form-group
+                button.btn.btn-success(type='submit') Ajouter le test
+                a.btn.btn-danger(href="/dashboard") Retour au dashboard

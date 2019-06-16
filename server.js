@@ -68,6 +68,8 @@ app.post('/login', function(req, res) {
     });
 });
 
+
+
 app.get('/destroy', (req, res) => {
     if(req.session){
         req.session.destroy((err) => {
@@ -84,7 +86,24 @@ app.get('/destroy', (req, res) => {
 app.get('/dashboard', (req, res) => {
     sess = req.session;
     if(sess.mail){
-        res.render('dashboard', { mail: sess.mail, pagename: "Dashboard", rank: sess.rank } );
+        console.log("user id : " + sess.userId);
+        if(sess.rank != 3){
+
+            let options = { url: 'http://localhost:8080/tests/' + sess.userId, headers: { } };
+
+            // On récup la liste des tests de l'utilisateur
+            request(options,(err,response,body) => {
+                if (err) throw err;
+
+                console.log("body : " + body)
+                let testlist = JSON.parse(body);
+
+                res.render('dashboard', { mail: sess.mail, pagename: "Dashboard", rank: sess.rank, testslist: testlist } );
+            });
+        }
+        else
+            res.render('dashboard', { mail: sess.mail, pagename: "Dashboard", rank: sess.rank } );
+
     }else{
         res.redirect('/');
     }
@@ -193,27 +212,65 @@ app.put('/testers/:uId',function (req,res) {
 
 // This method GET a specific tester using his ID
 app.get('/testers/:uId', function(req, res) {
-    tester.getUserById(req,res);});
+    tester.getUserById(req,res);
+});
 
 
 //-----------------------------------Fonctions Test -------------------------------------------------------------
 
+
+// On récupère les tests d'un utilisateur
+app.get('/tests/:uId', (req, res) => {
+    let uId = req.params.uId;
+    let sql = "SELECT tDescription, execute.statut, test_category.catLabel FROM tester, test, execute, test_category WHERE tester.uId=? AND tester.uId=execute.uId AND test.tId=execute.tId AND execute.tId=test.tId  AND execute.cId=test_category.catId";
+
+    con.query(sql, uId, (err, rows)=>{
+        if(err) throw err;
+
+        if(rows.length > 0){
+            console.log("Test d'un user : " + rows);
+            res.json(rows).end();
+        }
+        else{
+            res.json(rows).end();
+        }
+    })
+})
+
+
+//  Page d'ajout d'un test
 app.get('/addtestbycat', (req,res) => {
+
+    // On va récupérer les catégories de test
+    // On va faire la même chose avec les Campagne de test
+    // On affichera le tout sur la page pug
+
     let options = { url: 'http://localhost:8080/test_cats', headers: { } };
 
-    // Starting request
+    // Getting list of test categories
     request(options,(err,response,body) => {
         if(err) throw err;
-        let categories = JSON.parse(body);
-        res.render('add_test_by_category', { pagename: "Saisie d'un test", categories: categories});
 
+        let testCategories = JSON.parse(body);
+
+        let options = { url: 'http://localhost:8080/testcampaign', headers: { } };
+
+        // Getting all test campaigns
+        request(options,(err,response,body) => {
+            if(err) throw err;
+            let testcamplist = JSON.parse(body);
+
+            res.render('add_test_by_category', { pagename: "Saisie d'un test", testcategories: testCategories, testcampaignlist: testcamplist});
+
+        });
     });
 });
 
+// Page de reception du formulaire
 app.post('/addtestbycat', (req,res) => {
     obj = JSON.parse(JSON.stringify(req.body, null, " "));
 
-    let category = obj.cat;
+    let testcat = obj.testcat;
     let description = obj.description;
     let dateCrea = obj.datecrea;
     let duration = obj.duration;
@@ -223,7 +280,7 @@ app.post('/addtestbycat', (req,res) => {
             "description": description,
             "dateCreation": dateCrea,
             "duration": duration,
-            "catId": category
+            "catId": testcat
         },
         headers: {'Content-Type': 'application/json' }
     };
@@ -426,6 +483,8 @@ app.get('/campaignstests', function (req, res) {
         res.render('read_campaign_test', { rows : rows});
     });
 });
+
+// Get test campaign by ID
 app.get('/campaigntest/:id', function(req, res) {
     let id = req.params.id;
     let sql = mysql.format("SELECT * FROM campaigntest WHERE cId=?",id);
@@ -435,6 +494,18 @@ app.get('/campaigntest/:id', function(req, res) {
 
     });
 });
+
+// Get Test Campaign infos (ID, Description and Duration)
+app.get('/testcampaign', (req,res) =>  {
+    con.query("SELECT cId, cDescription, duration FROM campaigntest", function (err, rows, fields) {
+        if (err) throw err;
+        console.log(rows);
+        if(rows.length > 0)
+            res.json(rows).end();
+        else
+            res.json(rows).end();
+    });
+})
 
 //CRUD version
 //CRUD CAMPAIGN TEST
