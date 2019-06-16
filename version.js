@@ -4,8 +4,8 @@ let con = mysql.createConnection({
     host: "localhost",
     user: "root",
     password: "root",
-    database: "db_testing",
-    port: "8889"
+    database: "db_testing"
+    //port: "8889"
 });
 //-----------------------------------Fonctions Version -------------------------------------------------------------
 //Récupère toutes les éxécutions de test par un testeur

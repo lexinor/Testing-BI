@@ -19,7 +19,6 @@ var app = express();
 
 app.set('view engine', 'pug');
 
-
 app.use(bodyParser.json()); // pour supporter json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); //  pour supporter  encoded url
 
@@ -30,8 +29,8 @@ let con = mysql.createConnection({
     host: "localhost",
     user: "nodeuser",
     password: "node",
-    database:"db_testing",
-    port : 8889 // to comment when using WINDOWS
+    database:"db_testing"
+    //port : 8889 // to comment when using WINDOWS
 });
 
 let sess;
@@ -48,11 +47,13 @@ app.post('/login', function(req, res) {
         if(rows.length > 0){
 
             let uId = rows[0].uId;
+            let rank = rows[0].rank;
             let mail = obj.mail;
 
             if(uId != null){
                 req.session.mail = mail;
                 req.session.userId = uId;
+                req.session.rank = rank;
                 res.redirect('/dashboard')
             }
             else{
@@ -82,7 +83,7 @@ app.get('/destroy', (req, res) => {
 app.get('/dashboard', (req, res) => {
     sess = req.session;
     if(sess.mail){
-        res.render('dashboard', { mail: sess.mail, pagename: "Dashboard" } );
+        res.render('dashboard', { mail: sess.mail, pagename: "Dashboard", rank: sess.rank } );
     }else{
         res.redirect('/');
     }
@@ -171,7 +172,7 @@ app.post('/testers', function(req, res) {
 // Listing all testers
 app.get('/testers', function(req, res) {
     tester.getUsers(req,res);
-}   );
+});
 
 // This method add a tester we need to send a JSON object with the user info to succeed
 app.post('/testers', function(req, res) {
@@ -187,7 +188,7 @@ app.delete('/testers/:uId', function (req, res) {
 // You need to send a JSON to modify the user infos
 app.put('/testers/:uId',function (req,res) {
     tester.editUser(req,res);
-})
+});
 
 // This method GET a specific tester using his ID
 app.get('/testers/:uId', function(req, res) {
@@ -195,7 +196,44 @@ app.get('/testers/:uId', function(req, res) {
 
 
 //-----------------------------------Fonctions Test -------------------------------------------------------------
-//Récupère tous les Testeurs
+
+app.get('/addtestbycat', (req,res) => {
+    let options = { url: 'http://localhost:8080/test_cats', headers: { } };
+
+    // Starting request
+    request(options,(err,response,body) => {
+        if(err) throw err;
+        let categories = JSON.parse(body);
+        res.render('add_test_by_category', { pagename: "Saisie d'un test", categories: categories});
+
+    });
+});
+
+app.post('/addtestbycat', (req,res) => {
+    obj = JSON.parse(JSON.stringify(req.body, null, " "));
+
+    let category = obj.cat;
+    let description = obj.description;
+    let dateCrea = obj.datecrea;
+    let duration = obj.duration;
+
+    let options = { url: 'http://localhost:8080/tests',
+        form: {
+            "description": description,
+            "dateCreation": dateCrea,
+            "duration": duration,
+            "catId": category
+        },
+        headers: {'Content-Type': 'application/json' }
+    };
+    request.post(options, (err,httpResponse,body) => {
+
+        res.redirect('/dashboard?ok');
+    });
+
+});
+
+//Récupère tous les Tests
 app.get('/tests', function(req, res) {
     tests.getAllTests(req,res);
 });
@@ -203,6 +241,11 @@ app.get('/tests', function(req, res) {
 app.post('/tests', function(req, res) {
     tests.createTest(req,res);
 });
+
+app.post('/tests', function(req, res) {
+    tests.createTestByCat(req,res);
+});
+
 //Supprime le test selon son id et les lignes le concernant en pariticiper, en test
 app.delete('/tests/:tId', function (req, res) {
     tests.removeTestById(req,res);
@@ -270,23 +313,28 @@ app.get('/test_categories', function(req, res) {
         res.render('read_test_categories', { rows : rows});
     });
 });
+
+app.get('/test_cats', (req, res) => {
+    test_category.getAllTestCategory(req,res);
+});
+
 //Crée une nouvelle categorie de test
 app.post('/test_category', function(req, res) {
-    test_category.addTestCategory()
+    test_category.addTestCategory(req,res)
 });
 
 //Supprime la catégorie de test selon son Id
 app.delete('/test_category/:catId', function (req, res) {
-    test_category.removeTestCategory()
+    test_category.removeTestCategory(req,res)
 });
 //modifie la categorie de Test selon son id
 app.put('/test_category/:catId',function (req,res) {
-    test_category.updateTestCategory();
+    test_category.updateTestCategory(req,res);
 });
 
 //affiche une categorie de test particulier
 app.get('/test_category/:catId', function(req, res) {
-    test_category.getTestCategoryById();
+    test_category.getTestCategoryById(req,res);
 });
 //--------------------Test_Analyze --------------------------------------------------
 app.get('/analyze', function(req, res) {
@@ -334,6 +382,7 @@ app.get('/tests', function (req, res) {
 app.get('/addsoftware', function(req, res) {
     res.render('add_software')
 });
+
 app.post('/software', function(req, res) {
     obj = JSON.parse(JSON.stringify(req.body, null, " "));
     con.query("INSERT INTO software (sName, sDescription, sEntryDate) VALUES (?,?,?)",

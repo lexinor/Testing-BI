@@ -1,0 +1,22 @@
+extends base.pug
+
+
+block content
+    form(method='post', action='addtestbycat', enctype='application/json')
+        .form-group
+            label.col-form-label(for='category') Catégorie du test
+            select#category.form-control(name="cat" required)
+                - for(var cat of categories)
+                    option(value=cat.catId)=cat.catLabel
+        .form-group
+            label.col-form-label(for='description') Test description
+            textarea#description.form-control(name="description" required)
+        .form-group
+            label.col-form-label(for='date') Date de création
+            input#date.form-control(type="date" name="datecrea" required)
+        .form-group
+            label.col-form-label(for='duration') Durée du test
+            input#duration.form-control(type="text" name="duration" required)
+        .form-group
+            button.btn.btn-success(type='submit') Ajouter
+            a.btn.btn-danger(href="/dashboard") Retour

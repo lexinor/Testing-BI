@@ -4,8 +4,8 @@ let con = mysql.createConnection({
     host: "localhost",
     user: "nodeuser",
     password: "node",
-    database: "db_testing",
-    port: "8889"
+    database: "db_testing"
+    // port: "8889"
 });
 
 var getUsers = (req, res) => {
@@ -40,7 +40,6 @@ var addUser = (req, res) => {
             }
         });
     });
-    //res.status(200).end('Testeur créé');
 };
 
 
