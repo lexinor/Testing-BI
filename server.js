@@ -418,13 +418,34 @@ app.post('/campaigntest', function(req, res) {
 });
 
 app.get('/campaignstests', function (req, res) {
-    con.query('SELECT duration, cDescription, software.sName as softwareName FROM campaigntest INNER JOIN' +
+    con.query('SELECT duration, cDescription, software.sName as softwareName, cId FROM campaigntest INNER JOIN' +
         ' software on software.sId = campaigntest.sId', (err, rows, fields) => {
         if (err) {
             throw err;
         }
         res.render('read_campaign_test', { rows : rows});
     });
+});
+
+app.get('/testssincecampaign/:id', function (req, res) {
+    con.query('select * from test  INNER JOIN participer on participer.tId = test.tId ' +
+        'INNER JOIN campaigntest on campaigntest.cId = participer.cId where campaigntest.cId = ?', [req.params.id],
+        (err, rows, fields) => {
+        if (err) {
+            throw err;
+        }
+        res.render('read_tests_since_campaign', { rows : rows, pagename: 'Tests de la campagne'});
+    });
+});
+app.get('/testdetails/:id', function (req, res) {
+    con.query('select * from test inner JOIN execute on execute.tId = test.tId' +
+        ' INNER join tester on tester.uId = execute.uId where test.tId = ?', [req.params.id],
+        (err, rows, fields) => {
+            if (err) {
+                throw err;
+            }
+            res.render('read_test_details', { rows : rows, pagename: 'Testeurs du test'});
+        });
 });
 app.get('/campaigntest/:id', function(req, res) {
     let id = req.params.id;

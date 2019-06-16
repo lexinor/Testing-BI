@@ -1,0 +1,16 @@
+extends base.pug
+
+block content
+
+    table#dataTable.table.table-striped
+        thead
+            tr
+                th Nom
+                th Prénom
+                th Email
+
+        each n in rows
+            tr
+                td= n.uLastName
+                td= n.uFirstName
+                td= n.uMail

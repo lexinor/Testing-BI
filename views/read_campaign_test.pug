@@ -10,8 +10,12 @@ block content
                 th Description
                 th Durée
                 th Logiciel
+                th Tests
         each n in rows
             tr
                 td= n.cDescription
                 td= n.duration
                 td= n.softwareName
+                td
+                    a.btn.btn-outline-warning(href="/testssincecampaign/"+ n.cId)
+                        | Tests

@@ -2,9 +2,6 @@ extends base.pug
 
 block content
 
-    a.nav-link(href='addtest')
-        i.fas.fa-fw.fa-bus-alt
-        span Ajouter un test
     table.table.table-striped
         tr
             th Nom
@@ -18,8 +15,8 @@ block content
                 td= n.tDateCreation
                 td= n.duration
                 td
-                    button(onclick="location.href='/testdetails'", type='button')
-                        | Modifier
+                    a.btn.btn-outline-primary(href="/testdetails/" + n.tId) Détails
+
 
 
 
