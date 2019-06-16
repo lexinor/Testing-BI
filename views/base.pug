@@ -17,6 +17,7 @@ html(lang='en')
     body#page-top
         // Page Wrapper
         #wrapper
+            // Sidebar
             ul#accordionSidebar.navbar-nav.bg-gradient-primary.sidebar.sidebar-dark.accordion
                 // Sidebar - Brand
                 a.sidebar-brand.d-flex.align-items-center.justify-content-center(href='/dashboard')
@@ -47,6 +48,12 @@ html(lang='en')
                         a.nav-link.collapsed(href='/test_categories', aria-expanded='true')
                             i.fas.fa-fw.fa-vials
                             span Catégorie de Tests
+                        a.nav-link.collapsed(href='/campaignstests', aria-expanded='true')
+                            i.fas.fa-fw.fa-cog
+                            span Campagne de Tests
+                        a.nav-link.collapsed(href='/issues_types', aria-expanded='true')
+                            i.fas.fa-fw.fa-cog
+                            span Catégorie d'Issues
                     - if(rank != 3)
                         a.nav-link.collapsed(href='/softwares', aria-expanded='true')
                             i.fas.fa-fw.fa-cubes

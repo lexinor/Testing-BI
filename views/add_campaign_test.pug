@@ -1,0 +1,21 @@
+extends base.pug
+
+
+block content
+    form(method='post', action='campaigntest', enctype='application/json')
+        .form-group
+            label.col-form-label(for='a') Objet de la Campagne de Test
+            select#a.custom-select(name="software")
+                each software in softwares
+                    option(value=software) #{software.sName} - Release N° #{software.rid} - Version N° #{software.vid}
+
+        .form-group
+            label.col-form-label(for='b') Description
+            input#b.form-control(type='text', placeholder='Default input', name="description")
+
+        .form-gro6up
+            label.col-form-label(for='c') Durée de la campagne
+            input#c.form-control(type='number', placeholder='Default input', name="duration")
+
+            button.btn.btn-success(type='submit') Enregistrer la campagne
+

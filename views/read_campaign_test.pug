@@ -1,0 +1,17 @@
+extends base.pug
+
+block content
+    a.nav-link(href='addcampaigntest')
+        i.fas.fa-fw.fa-plus-circle
+        span Ajouter une nouvelle campagne de tests
+    table#dataTable.table.table-striped
+        thead
+            tr
+                th Description
+                th Durée
+                th Logiciel
+        each n in rows
+            tr
+                td= n.cDescription
+                td= n.duration
+                td= n.softwareName
