@@ -9,11 +9,7 @@ block content
         thead
             tr
                 th Libellé
-                th Modifier
 
         each n in rows
             tr
                 td= n.catLabel
-                td
-                    button.btn.btn-outline-primary(onclick="location.href='/test_category/" + n.uId + "'" , type='button')
-                        | Modifier

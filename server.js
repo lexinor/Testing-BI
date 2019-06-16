@@ -11,9 +11,9 @@ const request = require('request');
 let tester = require('./testers.js');
 let tests = require('./tests.js');
 let execute = require('./execute.js');
-let test_category = require('./test_category.js');
+let test_category_class = require('./test_category.js');
 //let test = require('./tests.js');
-let version = require('./version.js');
+//let version = require('./version.js');
 let analyze = require('./analyze.js');
 var app = express();
 
@@ -121,12 +121,12 @@ app.get('/', function(req, res) {
 
 
 app.get('/testers', function (req, res) {
+
     sess =  req.session;
     if(sess.mail){
         con.query('SELECT *  FROM tester ', (err, rows, fields) => {
             if (err) throw err;
-            console.log(fields);
-            res.render('read_testers', { rows : rows, mail: sess.mail, pagename: "Testers Page" });
+            res.render('read_testers', { rows : rows, mail: sess.mail, rank: sess.rank, pagename: "Testers Page" });
         });
     }
     else{
@@ -137,11 +137,22 @@ app.get('/testers', function (req, res) {
 
 //-----------------------------------Fonctions Utilisateurs-------------------------------------------------------------
 app.get('/addtester', function(req, res) {
-    res.render('add_tester')
-});
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
+            res.render('add_tester', {rank: sess.rank, mail: sess.mail}); }
+        else
+            {
+                res.redirect('/');
+            }
+
+    }});
 
 // This method add a tester we need to send a JSON object with the user info to succeed
 app.post('/tester', function(req, res) {
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
     obj = JSON.parse(JSON.stringify(req.body, null, " "));
     con.query("INSERT INTO tester (uLastName, uFirstName, uPassword, uMail) VALUES (?,?,?,?)",
         [obj.uLastName, obj.uFirstName, '1234', obj.uMail],
@@ -156,21 +167,36 @@ app.post('/tester', function(req, res) {
             res.status(403).end("Erreur");
         }
     });
-    res.redirect('/testers');
+    res.redirect('/testers'); }
+        else {
+        res.redirect('/');
+        }
+    }
 });
 // This method add a tester we need to send a JSON object with the user info to succeed
 app.get('/tester/:id', function(req, res) {
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
     let uId = req.params.id;
     let sql = mysql.format("SELECT * FROM tester WHERE uId=?",uId);
     con.query(sql, function (err, rows, fields) {
         if (err) throw err;
         console.log(rows[0]);
-        res.render('update_tester', { 'tester' : rows[0]  })
+        res.render('update_tester', { 'tester' : rows[0], mail: sess.mail, rank: sess.rank  })
 
-    });
+    }); }
+        else {
+        res.redirect('/');
+        }
+    }
 });
 
 app.post('/tester/updatetester', function(req, res) {
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
+
     obj = JSON.parse(JSON.stringify(req.body, null, " "));
     let sql = mysql.format("UPDATE tester SET uLastName=?, uFirstName=?, uMail=? WHERE uId=?",
         [obj.uLastName, obj.uFirstName,  obj.uMail,obj.id]);
@@ -178,7 +204,11 @@ app.post('/tester/updatetester', function(req, res) {
         if(err) throw err;
         res.status(200).end("Nombre de lignes modifiés: " + result.affectedRows);
     });
-    res.redirect('/testers');
+    res.redirect('/testers'); }
+        else {
+        res.redirect('/');
+        }
+    }
 });
 
 // This method add a tester we need to send a JSON object with the user info to succeed
@@ -256,7 +286,8 @@ app.get('/addtestbycat', (req,res) => {
             request(options,(err,response,body) => {
                 if(err) throw err;
                 let testcamplist = JSON.parse(body);
-                res.render('add_test_by_category', { pagename: "Saisie d'un test", testcategories: testCategories, testcampaignlist: testcamplist});
+                res.render('add_test_by_category', { pagename: "Saisie d'un test", testcategories: testCategories, rank: sess.rank, mail: sess.mail,
+                    testcampaignlist: testcamplist});
 
             });
         });
@@ -400,10 +431,7 @@ app.get('/execute/:uId/:tId/:cId', function(req, res) {
 app.get('/version', function(req, res) {
     version.getAllVersion(req,res);
 });
-//Crée une nouvelle éxécution
-app.post('/version', function(req, res) {
-    version.addVersion(req,res);
-});
+
 
 //Supprime l'éxécution selon son Id
 app.delete('/version/:sId/:rId/:vId', function (req, res) {
@@ -420,22 +448,28 @@ app.get('/version/:sId/:rId/:vId', function(req, res) {
 });
 //--------------------Test_Category --------------------------------------------------
 app.get('/test_categories', function(req, res) {
-    con.query('SELECT *  FROM test_category ', (err, rows, fields) => {
-        if (err) {
-            throw err;
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
+            con.query('SELECT *  FROM test_category ', (err, rows, fields) => {
+                if (err) {
+                    throw err;
+                }
+                res.render('read_test_categories', {rows: rows, rank: sess.rank, mail: sess.mail});
+            });
         }
-        res.render('read_test_categories', { rows : rows});
-    });
+
+    }else{
+        res.redirect('/');
+
+    }
 });
 
 app.get('/test_cats', (req, res) => {
-    test_category.getAllTestCategory(req,res);
+    test_category_class.getAllTestCategory(req,res);
 });
 
-//Crée une nouvelle categorie de test
-app.post('/test_category', function(req, res) {
-    test_category.addTestCategory(req,res)
-});
+
 
 //Supprime la catégorie de test selon son Id
 app.delete('/test_category/:catId', function (req, res) {
@@ -475,33 +509,56 @@ app.get('/analyze/:issId/:tId/:uId', function(req, res) {
 
 
 app.get('/softwares', function (req, res) {
-    con.query('SELECT *  FROM software ', (err, rows, fields) => {
+    sess = req.session;
+    if(sess.mail){
+        if(sess.rank == 3){
+            con.query('SELECT *  FROM software ', (err, rows, fields) => {
         if (err) {
             return next(err);
         }
-        res.render('read_software', { rows : rows});
-    });
-});
+        res.render('read_software', { rows : rows, rank: sess.rank, mail: sess.mail});
+    }); }
+        else
+        {
+            res.redirect('/');
+        }
+}});
 
 app.get('/tests', function (req, res) {
-    console.log('oui');
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
     con.query('SELECT *  FROM Test ', (err, rows, fields) => {
         if (err) {
             return next(err);
         }
-        res.render('read_test', { rows : rows });
-    });
+        res.render('read_test', { rows : rows, mail: sess.mail, rank: sess.rank });
+    }); }
+        else {
+        res.redirect('/');
+        }
+    }
 });
 //CRUD CAMPAIGN TEST
 
 app.get('/addcampaigntest', function(req, res) {
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
     let sql = mysql.format("select version.vId as vid, version.rId as rid, version.sId as sid, software.sName from version INNER JOIN software on software.sId = version.sId ");
     con.query(sql, function (err, rows, fields) {
         if (err) throw err;
-        res.render('add_campaign_test', { softwares: rows});
-    });
+        res.render('add_campaign_test', { softwares: rows, mail: sess.mail, rank: sess.rank});
+    }); }
+        else {
+        res.redirect('/');
+        }
+    }
 });
 app.post('/campaigntest', function(req, res) {
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
 
     objReq = JSON.parse(JSON.stringify(req.body, null, " "));
 
@@ -527,51 +584,98 @@ app.post('/campaigntest', function(req, res) {
                 res.status(403).end("Erreur");
             }
         });
-    res.redirect('/campaignstests');
+    res.redirect('/campaignstests'); }
+        else {
+        res.redirect('/');
+        }
+    }
 });
 
 app.get('/campaignstests', function (req, res) {
+    sess = req.session;
+    if(sess.mail){
+        if(sess.rank == 3){
     con.query('SELECT duration, cDescription, software.sName as softwareName, cId FROM campaigntest INNER JOIN' +
         ' software on software.sId = campaigntest.sId', (err, rows, fields) => {
         if (err) {
             throw err;
         }
-        res.render('read_campaign_test', { rows : rows});
-    });
+        res.render('read_campaign_test', { rows : rows, rank: sess.rank, mail: sess.mail});
+    }); }
+        else {
+        res.redirect('/');
+        }
+    }
 });
 
 app.get('/testssincecampaign/:id', function (req, res) {
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
     con.query('select * from test  INNER JOIN participer on participer.tId = test.tId ' +
         'INNER JOIN campaigntest on campaigntest.cId = participer.cId where campaigntest.cId = ?', [req.params.id],
         (err, rows, fields) => {
         if (err) {
             throw err;
         }
-        res.render('read_tests_since_campaign', { rows : rows, pagename: 'Tests de la campagne'});
-    });
+        res.render('read_tests_since_campaign', { rows : rows, pagename: 'Tests de la campagne', mail: sess.mail, rank: sess.rank});
+    }); }
+        else{
+        res.redirect('/');}
+    }
 });
 app.get('/testdetails/:id', function (req, res) {
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
     con.query('select * from test inner JOIN execute on execute.tId = test.tId' +
         ' INNER join tester on tester.uId = execute.uId where test.tId = ?', [req.params.id],
         (err, rows, fields) => {
             if (err) {
                 throw err;
             }
-            res.render('read_test_details', { rows : rows, pagename: 'Testeurs du test'});
-        });
+            con.query('select issue_type.itLabel as labeltype, issue.issName as labelissue, issue.issSeverity as severity, issue.issPriority as priority, analyse.startDate as startdate, issue.issStatut as statut, tester.uLastName as lastname from issue inner join issue_type on issue.itId = issue_type.itId' +
+                ' INNER join analyse on analyse.issId = issue.issId INNER join test on analyse.tId = test.tId INNER JOIN tester on  tester.uId = analyse.uId where test.tId = ? ', [req.params.id],
+                (err, rows2, fields) => {
+                    if (err) {
+                        throw err;
+                    }
+                    res.render('read_test_details', {
+                        rows: rows,
+                        rowsIssues: rows2,
+                        pagename: 'Testeurs du test',
+                        rank: sess.rank,
+                        mail: sess.mail
+                    });
+                });
+        }); }
+
+   else{
+        res.redirect('/');
+    } }
 });
 app.get('/campaigntest/:id', function(req, res) {
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
     let id = req.params.id;
     let sql = mysql.format("SELECT * FROM campaigntest WHERE cId=?",id);
     con.query(sql, function (err, rows, fields) {
         if (err) throw err;
-        res.render('update_campaign_test', { 'software' : rows[0]  })
+        res.render('update_campaign_test', { 'software' : rows[0], rank: sess.rank, mail: sess.mail  })
 
-    });
+    }); }
+        else {
+        res.redirect('/');
+        }
+    }
 });
 
 // Get Test Campaign infos (ID, Description and Duration)
 app.get('/testcampaign', (req,res) =>  {
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
     con.query("SELECT cId, cDescription, duration FROM campaigntest", function (err, rows, fields) {
         if (err) throw err;
         console.log(rows);
@@ -579,16 +683,29 @@ app.get('/testcampaign', (req,res) =>  {
             res.json(rows).end();
         else
             res.json(rows).end();
-    });
-})
+    }); }else {
+        res.redirect('/');
+        }
+    }
+});
 
 //CRUD version
 //CRUD CAMPAIGN TEST
 
 app.get('/addversion/:idSoftware/:idRelease', function(req, res) {
-    res.render('add_version', {  idSoftware: req.params.idSoftware, idRelease: req.params.idRelease});
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
+    res.render('add_version', {  idSoftware: req.params.idSoftware, idRelease: req.params.idRelease, mail: sess.mail, rank: sess.rank}); }
+        else {
+        res.redirect('/');
+        }
+    }
 });
 app.post('/version', function(req, res) {
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
     console.log("yes");
     obj = JSON.parse(JSON.stringify(req.body, null, " "));
 
@@ -605,17 +722,28 @@ app.post('/version', function(req, res) {
                 console.log("No rows affected");
                 res.status(403).end("Erreur");
             }
-        });
+        }); }
+        else {
+        res.redirect('/');
+        }
+    }
 });
 
 app.get('/versions/:idSoftware/:idRelease', function (req, res) {
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
     con.query('SELECT * from version where sId = ? and rId = ?', [req.params.idSoftware, req.params.idRelease]
         , (err, rows, fields) => {
             if (err) {
                 throw err;
             }
-            res.render('read_versions', {rows: rows, idSoftware: req.params.idSoftware, idRelease: req.params.idRelease});
-        });
+            res.render('read_versions', {rows: rows, idSoftware: req.params.idSoftware, idRelease: req.params.idRelease, mail:sess.mail, rank:sess.rank});
+        }); }
+        else {
+        res.redirect('/');
+        }
+    }
 });
 
 
@@ -623,9 +751,20 @@ app.get('/versions/:idSoftware/:idRelease', function (req, res) {
 //CRUD CAMPAIGN TEST
 
 app.get('/addsoftwarerelease/:id', function(req, res) {
-        res.render('add_software_release', {  idSoftware: req.params.id});
+
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
+            res.render('add_software_release', {  idSoftware: req.params.id, rank:sess.rank, mail: sess.mail}); }
+        else {
+            res.redirect('/');
+        }
+        }
 });
 app.post('/softwarerelease', function(req, res) {
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
 
     obj = JSON.parse(JSON.stringify(req.body, null, " "));
 
@@ -642,16 +781,26 @@ app.post('/softwarerelease', function(req, res) {
                 console.log("No rows affected");
                 res.status(403).end("Erreur");
             }
-        });
+        }); }
+        else {
+        res.redirect('/');
+        }
+    }
 });
 
 app.get('/softwarerelease/:id', function (req, res) {
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
     con.query('SELECT * from software_release where sId = ?', [req.params.id], (err, rows, fields) => {
         if (err) {
             throw err;
         }
-        res.render('read_software_release', { rows : rows, idSoftware : req.params.id});
-    });
+        res.render('read_software_release', { rows : rows, idSoftware : req.params.id, mail: sess.mail, rank:sess.rank});
+    }); }
+        else{
+        res.redirect('/');}
+    }
 });
 
 
@@ -660,94 +809,156 @@ app.get('/softwarerelease/:id', function (req, res) {
 
 //CRUD SOFTWARE
 app.get('/addsoftware', function(req, res) {
-    res.render('add_software')
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
+            res.render('add_software', { rank: sess.rank, mail: sess.mail})
+        }
+        else {
+        res.redirect('/');
+        }
+    }
 });
 
 app.post('/software', function(req, res) {
-    obj = JSON.parse(JSON.stringify(req.body, null, " "));
-    con.query("INSERT INTO software (sName, sDescription, sEntryDate) VALUES (?,?,?)",
-        [obj.name, obj.description, obj.startDate ],
-        function (err, result) {
-            if (err) throw err;
-            if(result.affectedRows > 0){
-                console.log("1 record inserted");
-                res.status(200).end("Okay");
-            }
-            else{
-                console.log("No rows affected");
-                res.status(403).end("Erreur");
-            }
-        });
-    res.redirect('/softwares');
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
+            obj = JSON.parse(JSON.stringify(req.body, null, " "));
+            con.query("INSERT INTO software (sName, sDescription, sEntryDate) VALUES (?,?,?)",
+                [obj.name, obj.description, obj.startDate],
+                function (err, result) {
+                    if (err) throw err;
+                    if (result.affectedRows > 0) {
+                        console.log("1 record inserted");
+                        res.status(200).end("Okay");
+                    } else {
+                        console.log("No rows affected");
+                        res.status(403).end("Erreur");
+                    }
+                });
+            res.redirect('/softwares');
+        }else{
+        res.redirect('/');
+        }
+    }
 });
 app.get('/software/:id', function(req, res) {
-    let id = req.params.id;
-    let sql = mysql.format("SELECT * FROM software WHERE sId=?",id);
-    con.query(sql, function (err, rows, fields) {
-        if (err) throw err;
-        res.render('update_software', { 'software' : rows[0]  })
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
+            let id = req.params.id;
+            let sql = mysql.format("SELECT * FROM software WHERE sId=?", id);
+            con.query(sql, function (err, rows, fields) {
+                if (err) throw err;
+                res.render('update_software', {'software': rows[0], mail: sess.mail, rank: sess.rank})
 
-    });
+            });
+        }
+        else {
+            res.redirect('/');
+        }
+    }
 });
 app.post('/software/updatesoftware', function(req, res) {
-    obj = JSON.parse(JSON.stringify(req.body, null, " "));
-    let sql = mysql.format("UPDATE software SET sName=?, sDescription=? WHERE sId=?",
-        [obj.name, obj.description,obj.id]);
-    con.query(sql,function (err, result) {
-        if(err) throw err;
-        res.status(200).end("Nombre de lignes modifiés: " + result.affectedRows);
-    });
-    res.redirect('/softwares');
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
+            obj = JSON.parse(JSON.stringify(req.body, null, " "));
+            let sql = mysql.format("UPDATE software SET sName=?, sDescription=? WHERE sId=?",
+                [obj.name, obj.description, obj.id]);
+            con.query(sql, function (err, result) {
+                if (err) throw err;
+                res.status(200).end("Nombre de lignes modifiés: " + result.affectedRows);
+            });
+            res.redirect('/softwares');
+        }else{
+            res.redirect('/');
+        }
+    }
 });
 
 app.get('/add_test_category', function(req, res) {
-    res.render('add_test_category')
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
+            res.render('add_test_category', { mail: sess.mail, rank: sess.rank} )
+        }
+        else {
+        res.redirect('/');
+        }
+    }
 });
 app.post('/test_category', function(req, res) {
-    obj = JSON.parse(JSON.stringify(req.body, null, " "));
-    con.query("INSERT INTO test_category (catLabel) VALUES (?)",
-        [obj.label],
-        function (err, result) {
-            if (err) throw err;
-            if(result.affectedRows > 0){
-                console.log("1 record inserted");
-                res.redirect('/test_categories');
-            }
-            else{
-                console.log("No rows affected");
-                res.status(403).end("Erreur");
-            }
-        });
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
+            obj = JSON.parse(JSON.stringify(req.body, null, " "));
+            con.query("INSERT INTO test_category (catLabel) VALUES (?)",
+                [obj.label],
+                function (err, result) {
+                    if (err) throw err;
+                    if (result.affectedRows > 0) {
+                        console.log("1 record inserted");
+                        res.redirect('/test_categories');
+                    } else {
+                        console.log("No rows affected");
+                        res.status(403).end("Erreur");
+                    }
+                });
+        } else{
+            res.redirect('/');
+        }
+    }
 });
 //issue type
 
 
 app.get('/add_issue_type', function(req, res) {
-    res.render('add_issue_type');
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
+    res.render('add_issue_type', { mail: sess.mail, rank: sess.mail}); }
+        else{
+        res.redirect('/');
+        }
+    }
 });
 app.post('/issue_type', function(req, res) {
-    obj = JSON.parse(JSON.stringify(req.body, null, " "));
-    con.query("INSERT INTO issue_type (itLabel) VALUES (?)",
-        [obj.label],
-        function (err, result) {
-            if (err) throw err;
-            if(result.affectedRows > 0){
-                console.log("1 record inserted");
-                res.redirect('/issues_types');
-            }
-            else{
-                console.log("No rows affected");
-                res.status(403).end("Erreur");
-            }
-        });
-});
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
+            obj = JSON.parse(JSON.stringify(req.body, null, " "));
+            con.query("INSERT INTO issue_type (itLabel) VALUES (?)",
+                [obj.label],
+                function (err, result) {
+                    if (err) throw err;
+                    if (result.affectedRows > 0) {
+                        console.log("1 record inserted");
+                        res.redirect('/issues_types');
+                    } else {
+                        console.log("No rows affected");
+                        res.status(403).end("Erreur");
+                    }
+                });
+        } else {
+            res.redirect('/');
+        }
+
+
+    }});
 app.get('/issues_types', function(req, res) {
+    sess = req.session;
+    if(sess.mail) {
+        if (sess.rank == 3) {
     con.query('SELECT *  FROM issue_type ', (err, rows, fields) => {
         if (err) {
             throw err;
         }
-        res.render('read_issue_type', { rows : rows});
-    });
+        res.render('read_issue_type', { rows : rows, mail: sess.mail, rank: sess.rank});
+    }); }else {
+        res.redirect('/');}
+    }
 });
 //app.use(express.static('forms'));
 app.use(express.static('public'));

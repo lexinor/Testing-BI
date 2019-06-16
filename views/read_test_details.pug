@@ -1,8 +1,8 @@
 extends base.pug
 
 block content
-
-    table#dataTable.table.table-striped
+    h2 Testeurs ayant travailler sur ce test
+    table.table.table-striped
         thead
             tr
                 th Nom
@@ -14,3 +14,28 @@ block content
                 td= n.uLastName
                 td= n.uFirstName
                 td= n.uMail
+
+    h2 Anomalies sur ce test
+    table#dataTable.table.table-striped
+        thead
+            tr
+                th Testeur
+                th Type
+                th Nom
+                th Severité
+                th Priorité
+                th Date
+                th statut
+
+        each n in rowsIssues
+            tr
+                td= n.lastname
+                td= n.labeltype
+                td= n.labelissue
+                td= n.severity
+                td= n.priority
+                td= n.startdate
+                td= n.statut
+
+
+
