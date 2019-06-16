@@ -11,7 +11,7 @@ block content
                         option(value=cat.catId)=cat.catLabel
 
                 label.col-form-label(for='testcamplist') Campagne de test
-                select#testcamplist.form-control(name="camplist" required)
+                select#testcamplist.form-control(name="testcamp" required)
                     - for(var campaign of testcampaignlist)
                         option(value=campaign.cId)=campaign.cDescription
             .form-group

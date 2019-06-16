@@ -86,7 +86,6 @@ app.get('/destroy', (req, res) => {
 app.get('/dashboard', (req, res) => {
     sess = req.session;
     if(sess.mail){
-        console.log("user id : " + sess.userId);
         if(sess.rank != 3){
 
             let options = { url: 'http://localhost:8080/tests/' + sess.userId, headers: { } };
@@ -94,8 +93,6 @@ app.get('/dashboard', (req, res) => {
             // On récup la liste des tests de l'utilisateur
             request(options,(err,response,body) => {
                 if (err) throw err;
-
-                console.log("body : " + body)
                 let testlist = JSON.parse(body);
 
                 res.render('dashboard', { mail: sess.mail, pagename: "Dashboard", rank: sess.rank, testslist: testlist } );
@@ -128,7 +125,6 @@ app.get('/testers', function (req, res) {
     if(sess.mail){
         con.query('SELECT *  FROM tester ', (err, rows, fields) => {
             if (err) throw err;
-            console.log(fields);
             res.render('read_testers', { rows : rows, mail: sess.mail, pagename: "Testers Page" });
         });
     }
@@ -228,7 +224,6 @@ app.get('/tests/:uId', (req, res) => {
         if(err) throw err;
 
         if(rows.length > 0){
-            console.log("Test d'un user : " + rows);
             res.json(rows).end();
         }
         else{
@@ -240,45 +235,109 @@ app.get('/tests/:uId', (req, res) => {
 
 //  Page d'ajout d'un test
 app.get('/addtestbycat', (req,res) => {
+    sess = req.session;
+    if(sess.mail){
+        // On va récupérer les catégories de test
+        // On va faire la même chose avec les Campagne de test
+        // On affichera le tout sur la page pug
 
-    // On va récupérer les catégories de test
-    // On va faire la même chose avec les Campagne de test
-    // On affichera le tout sur la page pug
+        let options = { url: 'http://localhost:8080/test_cats', headers: { } };
 
-    let options = { url: 'http://localhost:8080/test_cats', headers: { } };
-
-    // Getting list of test categories
-    request(options,(err,response,body) => {
-        if(err) throw err;
-
-        let testCategories = JSON.parse(body);
-
-        let options = { url: 'http://localhost:8080/testcampaign', headers: { } };
-
-        // Getting all test campaigns
+        // Getting list of test categories
         request(options,(err,response,body) => {
             if(err) throw err;
-            let testcamplist = JSON.parse(body);
 
-            res.render('add_test_by_category', { pagename: "Saisie d'un test", testcategories: testCategories, testcampaignlist: testcamplist});
+            let testCategories = JSON.parse(body);
 
+            let options = { url: 'http://localhost:8080/testcampaign', headers: { } };
+
+            // Getting all test campaigns
+            request(options,(err,response,body) => {
+                if(err) throw err;
+                let testcamplist = JSON.parse(body);
+                res.render('add_test_by_category', { pagename: "Saisie d'un test", testcategories: testCategories, testcampaignlist: testcamplist});
+
+            });
         });
-    });
+    }
+    else{
+        res.redirect('/login');
+    }
+
+
 });
 
 // Page de reception du formulaire
 app.post('/addtestbycat', (req,res) => {
-    obj = JSON.parse(JSON.stringify(req.body, null, " "));
+    sess = req.session;
+    if(sess.mail){
+        obj = JSON.parse(JSON.stringify(req.body, null, " "));
 
-    let testcat = obj.testcat;
-    let description = obj.description;
-    let dateCrea = obj.datecrea;
-    let duration = obj.duration;
+        // 1er - Add Test
+        // 2e - Participer (idCampagne + lastIndex)
+        // 3e - execute (userId + idCampagne + idTest + Date.Now() )
+        let testcat = obj.testcat;
+        let testcamp = obj.testcamp;
 
-    let options = { url: 'http://localhost:8080/tests',
+        let datecrea = obj.datecrea;
+        let duration = obj.duration;
+
+        let description = obj.description;
+        let uId = sess.userId;
+
+
+        let sql = mysql.format("INSERT INTO test (tDescription, tdateCreation, duration, catId) VALUES (?,?,?,?);", [description, datecrea, duration, testcat]);
+        con.query(sql, function (err, result) {
+            if (err) throw err;
+
+            if(result.affectedRows > 0){
+                console.log("Added test");
+                let testId = result.insertId;
+                let insertParticiper = "INSERT INTO participer VALUES(?,?)";
+                // On ajoute le nouveau test et l'id de la catégorie dans Participer
+                con.query(insertParticiper, [testcamp, testId], (err, result2) => {
+                    if(err) throw err;
+
+                    console.log(result2);
+                    if(result2.affectedRows > 0){
+
+                        console.log("Row inserted in Participer");
+                        let insertExecute = "INSERT INTO execute (uId,tId,cId,startDate) VALUES (?,?,?,?)";
+                        con.query(insertExecute, [uId,testId,testcamp, datecrea], (err, result3) => {
+                            if(err) throw err;
+
+                            console.log(result3);
+                            if(result3.affectedRows > 0){
+                                console.log("Row inserted in Execute");
+                                res.redirect('/dashboard?ok');
+                            }
+                            else{
+                                console.log("Row not inserted in Execute");
+                                res.redirect('/dashboard?nok');
+                            }
+                        });
+                    }
+                    else{
+                        console.log("Row not inserted in Participer");
+                        res.redirect('/dashboard?nok');
+                    }
+                })
+            }
+            else{
+                console.log("0 record inserted");
+                res.status(200).end('Erreur lors de la création du test' );
+            }
+        });
+    }
+    else{
+        res.redirect('/login');
+    }
+
+
+    /*let options = { url: 'http://localhost:8080/tests',
         form: {
             "description": description,
-            "dateCreation": dateCrea,
+            "dateCreation": datecrea,
             "duration": duration,
             "catId": testcat
         },
@@ -287,7 +346,7 @@ app.post('/addtestbycat', (req,res) => {
     request.post(options, (err,httpResponse,body) => {
 
         res.redirect('/dashboard?ok');
-    });
+    });*/
 
 });
 
@@ -298,10 +357,6 @@ app.get('/tests', function(req, res) {
 //Crée un nouveau Test
 app.post('/tests', function(req, res) {
     tests.createTest(req,res);
-});
-
-app.post('/tests', function(req, res) {
-    tests.createTestByCat(req,res);
 });
 
 //Supprime le test selon son id et les lignes le concernant en pariticiper, en test
