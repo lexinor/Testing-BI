@@ -1,7 +1,7 @@
 extends base.pug
 block content
     a.btn.btn-primary(href="/addtestbycat") Saisir un test par Campagne
-    a.btn.btn-primary(href="#") Saisir une annomalie
+
     hr
     - if(testslist)
         table#dataTable.table.table-striped
@@ -10,11 +10,14 @@ block content
                     th Description du test
                     th Statut du test
                     th Catégorie du test
+                    th
             each test in testslist
                 tr
                     td=test.tDescription
                     td=test.statut
                     td=test.catLabel
+                    td
+                        a.btn.btn-primary(href="/addissue/"+test.tId) Saisir annomalie
     .card.shadow.mb-4
         .card-header.py-3
             h6.m-0.font-weight-bold.text-primary Graphique n°1

@@ -36,6 +36,112 @@ let con = mysql.createConnection({
 
 let sess;
 
+// On recup tous les types d'issue
+app.get('/issue_type', (req, res) => {
+    con.query("SELECT * FROM issue_type",(err, rows)=>{
+        if(err) throw err;
+        if (rows.length > 0)
+            res.json(rows).end();
+        else
+            res.json(rows).end();
+    });
+})
+
+app.get('/addissue/:tId', (req,res) => {
+    sess = req.session;
+    if(sess.mail){
+
+        let tId = req.params.tId;
+        let options = { url: 'http://localhost:8080/issue_type', headers: { } };
+
+        // On récup tous les type_issue
+        request(options,(err,response,body) => {
+            if (err) throw err;
+
+            let typeList = JSON.parse(body);
+            let options = { url: 'http://localhost:8080/version', headers: { } };
+
+            // On récup toutes les infos de version (sId + rId + vId)
+            request(options,(err,response,body) => {
+                if (err) throw err;
+
+                let versions = JSON.parse(body);
+
+                res.render('add_issue', { pagename: "Saisie d'une anomalie", rank: sess.rank, testId: tId, typelist: typeList, versionlist: versions });
+            });
+        });
+    }
+    else{
+        res.redirect('/login');
+    }
+});
+
+// Quand on envoie le formulaire de la page de creation d'anomalie
+app.post('/addissue', (req,res) => {
+
+    sess = req.session;
+    if(sess.mail){
+        obj = JSON.parse(JSON.stringify(req.body, null, " "));
+
+        let uId = sess.userId;
+
+        // 1er : Issue - Créer l'issue
+        let iName = obj.iName;
+        let iDesc = obj.idesc;
+        let priority = obj.priority;
+        let severity = obj.severity;
+        let statut = obj.statut;
+        let itId = obj.typeissue;
+
+        // 2e : Posseder - version(sId + rId + vId) + issId
+        let version = obj.version;
+        let versions = version.split('/');
+
+        let datecrea = obj.datecrea;
+        let testId = obj.testId;
+
+        let insertIssue = "INSERT INTO issue (`issName`, `issDescription`, `issSeverity`, `issPriority`, `issStatut`, `itId`) VALUES (?,?,?,?,?,?)";
+        con.query(insertIssue, [iName, iDesc, severity, priority, statut, itId], (err, result) => {
+            if(err) throw err;
+
+            if(result.affectedRows > 0){
+                console.log("Row inserted in Issue");
+                let issId = result.insertId;
+
+                // 2e : Ajout de la ligne dans Posseder - version(sId + rId + vId) + issId
+                let insertPosseder = "INSERT INTO `posseder`(`sId`, `rId`, `vId`, `issId`) VALUES (?,?,?,?)";
+                con.query(insertPosseder, [versions[0], versions[1], versions[2], issId], (err, result2) => {
+                    if(err) throw err;
+
+                    if(result2.affectedRows > 0){
+                        console.log("Row inserted in Posseder");
+
+                        // 3e : Ajout de la ligne dans Analyse - issId + tId + uId
+                        let insertAnalyse = "INSERT INTO `analyse`(`issId`, `tId`, `uId`, `statut`, `startDate`) VALUES (?,?,?,?,?)";
+                        con.query(insertAnalyse, [issId, testId, uId, statut, datecrea], (err, result3) => {
+                            if(err) throw err;
+                            if(result3.affectedRows > 0){
+                                console.log("Row inserted in Analyze");
+                                res.redirect('/dashboard?issOk')
+                            }
+                            else
+                                res.redirect('/dashboard');
+                        });
+                    }
+                    else
+                        res.redirect('/dashboard');
+                });
+            }
+            else
+                res.redirect('/dashboard');
+        });
+    }
+    else{
+        res.redirect('/login');
+    }
+});
+
+
 // -------- LOGIN-IN -------- //
 
 app.post('/login', function(req, res) {
@@ -67,8 +173,6 @@ app.post('/login', function(req, res) {
         }
     });
 });
-
-
 
 app.get('/destroy', (req, res) => {
     if(req.session){
@@ -119,7 +223,6 @@ app.get('/', function(req, res) {
         res.render('login');
 });
 
-
 app.get('/testers', function (req, res) {
     sess =  req.session;
     if(sess.mail){
@@ -157,6 +260,7 @@ app.post('/tester', function(req, res) {
     });
     res.redirect('/testers');
 });
+
 // This method add a tester we need to send a JSON object with the user info to succeed
 app.get('/tester/:id', function(req, res) {
     let uId = req.params.id;
@@ -214,11 +318,10 @@ app.get('/testers/:uId', function(req, res) {
 
 //-----------------------------------Fonctions Test -------------------------------------------------------------
 
-
 // On récupère les tests d'un utilisateur
 app.get('/tests/:uId', (req, res) => {
     let uId = req.params.uId;
-    let sql = "SELECT tDescription, execute.statut, test_category.catLabel FROM tester, test, execute, test_category WHERE tester.uId=? AND tester.uId=execute.uId AND test.tId=execute.tId AND execute.tId=test.tId  AND execute.cId=test_category.catId";
+    let sql = "SELECT execute.tId, tDescription, execute.statut, test_category.catLabel FROM tester, test, execute, test_category WHERE tester.uId=? AND tester.uId=execute.uId AND test.tId=execute.tId AND execute.tId=test.tId  AND execute.cId=test_category.catId";
 
     con.query(sql, uId, (err, rows)=>{
         if(err) throw err;
@@ -231,7 +334,6 @@ app.get('/tests/:uId', (req, res) => {
         }
     })
 })
-
 
 //  Page d'ajout d'un test
 app.get('/addtestbycat', (req,res) => {
@@ -332,22 +434,6 @@ app.post('/addtestbycat', (req,res) => {
     else{
         res.redirect('/login');
     }
-
-
-    /*let options = { url: 'http://localhost:8080/tests',
-        form: {
-            "description": description,
-            "dateCreation": datecrea,
-            "duration": duration,
-            "catId": testcat
-        },
-        headers: {'Content-Type': 'application/json' }
-    };
-    request.post(options, (err,httpResponse,body) => {
-
-        res.redirect('/dashboard?ok');
-    });*/
-
 });
 
 //Récupère tous les Tests
@@ -721,6 +807,7 @@ app.post('/issue_type', function(req, res) {
             }
         });
 });
+
 app.get('/issues_types', function(req, res) {
     con.query('SELECT *  FROM issue_type ', (err, rows, fields) => {
         if (err) {
@@ -729,6 +816,7 @@ app.get('/issues_types', function(req, res) {
         res.render('read_issue_type', { rows : rows});
     });
 });
+
 //app.use(express.static('forms'));
 app.use(express.static('public'));
 app.use(function(req, res, next){
