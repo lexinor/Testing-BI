@@ -1,0 +1,22 @@
+extends base.pug
+
+
+block content
+    form(method='post', action='../../updatetest', enctype="application/json")
+        .form-group
+            label.col-form-label(for='teststatut') Statut du test
+            select#teststatut.form-control(name="statut" required)
+                option(value="nok" selected=test.statut === "nok") nok
+                option(value="norun" selected=test.statut === "norun") no run
+                option(value="ok" selected=test.statut === "ok") ok
+
+        .form-group
+            label.col-form-label() Cocher cette case pour terminer le test
+            input.form-control(type='radio', value="1", name="closed")
+
+        .form-group
+            input(type='hidden', value=tId, name="tId")
+            input(type='hidden', value=cId, name="cId")
+        .form-group
+            button.btn.btn-success(type='submit') Valider
+            a.btn.btn-danger(href='/dashboard') Retour au dashboard

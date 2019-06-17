@@ -37,6 +37,83 @@ let con = mysql.createConnection({
 
 let sess;
 
+
+
+app.get('/changestatut/:tId/:cId', (req, res) => {
+    sess = req.session;
+    if(sess.mail){
+        let tId = req.params.tId;
+        let cId = req.params.cId;
+
+        let sql = "SELECT execute.statut FROM test " +
+            "INNER join execute on execute.tId = test.tId " +
+            "INNER join tester on execute.uId = tester.uId " +
+            "INNER join campaigntest on campaigntest.cId = execute.cId " +
+            "WHERE tester.uId =? " +
+            "AND test.tId=? AND campaigntest.cId=?";
+        con.query(sql,[sess.userId, tId, cId],(err, rows)=>{
+            if(err) throw err;
+            if (rows.length > 0){
+                console.log(rows);
+                res.render('update_test', { pagename: "Change test info", test: rows, tId: tId, cId: cId, rank: sess.rank, mail: sess.mail })
+            }
+            else
+                console.log("Impossible de récupérer les infos du test dans execute")
+        });
+    }
+    else{
+        res.redirect('/login');
+    }
+});
+
+app.post('/updatetest', (req, res) => {
+    sess = req.session;
+    if(sess.mail){
+        obj = JSON.parse(JSON.stringify(req.body, null, " "));
+        let closed = obj.closed;
+        let statut = obj.statut;
+        let tId = obj.tId;
+        let cId = obj.cId;
+
+        if(closed === "1"){
+            console.log("Closing test");
+
+            let sql = "UPDATE execute SET statut=?, endDate=CAST(NOW() AS Date) WHERE uId=? AND tId=? AND cId=?";
+            con.query(sql,[statut, sess.userId, tId, cId],(err, result)=>{
+                if(err) throw err;
+                if (result.affectedRows > 0){
+                    res.redirect('/dashboard?upOk');
+                }
+                else{
+                    console.log("Can't update test - closed");
+                    res.redirect('/dashboard?upNok');
+                }
+            });
+        }
+        else{
+            console.log("Do not close");
+            console.log("statut : "+ statut);
+            console.log("tId : "+ tId);
+            console.log("cId : "+ cId);
+            let sql = "UPDATE execute SET statut=? WHERE uId=? AND tId=? AND cId=?";
+            con.query(sql,[statut, sess.userId, tId, cId],(err, result)=>{
+                if(err) throw err;
+                console.log(result)
+                if (result.affectedRows > 0){
+                    res.redirect('/dashboard?upOk');
+                }
+                else{
+                    console.log("Can't update test - not closed");
+                    res.redirect('/dashboard?upNok');
+                }
+            });
+        }
+    }
+    else{
+        res.redirect('/login');
+    }
+});
+
 // On recup tous les types d'issue
 app.get('/issue_type', (req, res) => {
     con.query("SELECT * FROM issue_type",(err, rows)=>{
@@ -199,7 +276,7 @@ app.get('/dashboard', (req, res) => {
             request(options,(err,response,body) => {
                 if (err) throw err;
                 let testlist = JSON.parse(body);
-
+                console.log(testlist);
                 res.render('dashboard', { mail: sess.mail, pagename: "Dashboard", rank: sess.rank, testslist: testlist } );
             });
         }
@@ -353,7 +430,13 @@ app.get('/testers/:uId', function(req, res) {
 // On récupère les tests d'un utilisateur
 app.get('/tests/:uId', (req, res) => {
     let uId = req.params.uId;
-    let sql = "SELECT execute.tId, tDescription, execute.statut, test_category.catLabel FROM tester, test, execute, test_category WHERE tester.uId=? AND tester.uId=execute.uId AND test.tId=execute.tId AND execute.tId=test.tId  AND execute.cId=test_category.catId";
+    let sql = "SELECT execute.endDate, execute.tId, campaigntest.cId, tDescription, execute.statut, test_category.catLabel " +
+        "FROM tester, test, execute, test_category, campaigntest " +
+            "WHERE tester.uId=? " +
+                "AND tester.uId=execute.uId " +
+                "AND test.tId=execute.tId " +
+                "AND test.catId=test_category.catId " +
+                "AND execute.cId=campaigntest.cId ";
 
     con.query(sql, uId, (err, rows)=>{
         if(err) throw err;
