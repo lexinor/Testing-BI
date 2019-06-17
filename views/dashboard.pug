@@ -18,16 +18,42 @@ block content
                     td=test.catLabel
                     td
                         a.btn.btn-primary(href="/addissue/"+test.tId) Saisir annomalie
-    .card.shadow.mb-4
-        .card-header.py-3
-            h6.m-0.font-weight-bold.text-primary Graphique n°1
-        .card-body
-            .text-center
-                <iframe width="1" height="1" src="https://app.powerbi.com/view?r=eyJrIjoiNGIxYmQwODQtOGMyZS00YjRiLWFmNWYtZDg0OGI2N2RlODNlIiwidCI6ImIzMjNiY2I0LTZkNTgtNGYyNS04N2JmLTYzNjZjM2Q2ODlhZiIsImMiOjh9" frameborder="0" allowFullScreen="true"></iframe>
-
-    .card.shadow.mb-4
-        .card-header.py-3
-            h6.m-0.font-weight-bold.text-primary Graphique n°2
-        .card-body
-            .text-center
-                <iframe width="1" height="1" src="https://app.powerbi.com/view?r=eyJrIjoiZDQ3MjY5ZTktM2ZjYi00M2VkLThkOTQtNDVhY2Q4OTMzYmExIiwidCI6ImIzMjNiY2I0LTZkNTgtNGYyNS04N2JmLTYzNjZjM2Q2ODlhZiIsImMiOjh9" frameborder="0" allowFullScreen="true"></iframe>
+    .row
+        .card.shadow.mb-4.col-6
+            .card-header.py-3
+                h6.m-0.font-weight-bold.text-primary Nombre de tests par mois
+            .card-body.embed-responsive.embed-responsive-16by9
+                .text-center
+                    iframe.embed-responsive-item(src='https://app.powerbi.com/view?r=eyJrIjoiNGIxYmQwODQtOGMyZS00YjRiLWFmNWYtZDg0OGI2N2RlODNlIiwidCI6ImIzMjNiY2I0LTZkNTgtNGYyNS04N2JmLTYzNjZjM2Q2ODlhZiIsImMiOjh9', frameborder='0', allowfullscreen='true')
+        .card.shadow.mb-4.col-6
+            .card-header.py-3
+                h6.m-0.font-weight-bold.text-primary Nombre de tests par type
+            .card-body.embed-responsive.embed-responsive-16by9
+                .text-center
+                    iframe.embed-responsive-item(src='https://app.powerbi.com/view?r=eyJrIjoiODdiMzRjZWEtYTQzNC00Njc1LTg2MzUtNjEwMjNiODc1NTA2IiwidCI6ImIzMjNiY2I0LTZkNTgtNGYyNS04N2JmLTYzNjZjM2Q2ODlhZiIsImMiOjh9', frameborder='0', allowfullscreen='true')
+        .w-100
+        .card.shadow.mb-4.col-6
+            .card-header.py-3
+                h6.m-0.font-weight-bold.text-primary Nombre de tests par utilisateurs
+            .card-body.embed-responsive.embed-responsive-16by9
+                .text-center
+                    iframe.embed-responsive-item(src='https://app.powerbi.com/view?r=eyJrIjoiMTJiYzEzOWQtZjNjOC00ZDMzLTg4MTMtZTcwNzRkOWM5MmVjIiwidCI6ImIzMjNiY2I0LTZkNTgtNGYyNS04N2JmLTYzNjZjM2Q2ODlhZiIsImMiOjh9', frameborder='0', allowfullscreen='true')
+        .card.shadow.mb-4.col-6
+            .card-header.py-3
+                h6.m-0.font-weight-bold.text-primary Nombre de tests par statut
+            .card-body.embed-responsive.embed-responsive-16by9
+                .text-center
+                    iframe.embed-responsive-item(src='https://app.powerbi.com/view?r=eyJrIjoiZjAzZTZmZjctNmU5Ni00NzI4LThiZjQtNDdiZTUwMWU5NTJhIiwidCI6ImIzMjNiY2I0LTZkNTgtNGYyNS04N2JmLTYzNjZjM2Q2ODlhZiIsImMiOjh9', frameborder='0', allowfullscreen='true')
+        .w-100
+        .card.shadow.mb-4.col-6
+            .card-header.py-3
+                h6.m-0.font-weight-bold.text-primary Nombre d'anomalies par type
+            .card-body.embed-responsive.embed-responsive-16by9
+                .text-center
+                    iframe.embed-responsive-item(src='https://app.powerbi.com/view?r=eyJrIjoiZTM3MmNmMWMtMDYzYy00YjAxLWEzZDQtOGEwNDQyYWZkMmFiIiwidCI6ImIzMjNiY2I0LTZkNTgtNGYyNS04N2JmLTYzNjZjM2Q2ODlhZiIsImMiOjh9', frameborder='0', allowfullscreen='true')
+        .card.shadow.mb-4.col-6
+            .card-header.py-3
+                h6.m-0.font-weight-bold.text-primary Nombre d'anomalies selon la priorité (de 1 à 5)
+            .card-body.embed-responsive.embed-responsive-16by9
+                .text-center
+                    iframe.embed-responsive-item(src='https://app.powerbi.com/view?r=eyJrIjoiMTFlNTNmMmUtMWUyOC00MDU4LTg2YmQtNTIxNWIwZmJiYmM3IiwidCI6ImIzMjNiY2I0LTZkNTgtNGYyNS04N2JmLTYzNjZjM2Q2ODlhZiIsImMiOjh9', frameborder='0', allowfullscreen='true')
