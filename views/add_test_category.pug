@@ -1,0 +1,10 @@
+extends base.pug
+
+
+block content
+    form(method='post', action='test_category', enctype='application/json')
+        .form-group
+            label.col-form-label(for='a') Libellé
+            input#a.form-control(type='text', placeholder : ='Default input', name="label")
+        .form-group
+            button.btn.btn-success(type='submit') Enrgeistrer la Catégorie

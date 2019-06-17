@@ -1,0 +1,18 @@
+extends base.pug
+
+block content
+    a.nav-link(href='/addversion/' + idSoftware + "/" + idRelease)
+        i.fas.fa-fw.fa-plus-circle
+        span Ajouter une nouvelle version
+    table#dataTable.table.table-striped
+        thead
+            tr
+                th rVersion
+                th rId
+                th Versions
+        each n in rows
+            tr
+                td= n.vLabel
+                td= n.vDescription
+                td= n.vId
+

@@ -1,0 +1,18 @@
+extends base.pug
+
+
+block content
+    form(method='post', action='/softwarerelease', enctype='application/json')
+        .form-group
+            label.col-form-label(for='b') Objet de la Release
+            input#b.form-control(type='text', placeholder='Objet de cette release' , name="release")
+
+        .form-group
+            label.col-form-label(for='c') Numéro de Release
+            input#c.form-control(type='number', placeholder='Entrez un chiffre' , name="idRelease")
+
+        .form-group
+            input(type='hidden', placeholder='Default input', value=idSoftware, name="idSoftware")
+
+            button.btn.btn-success(type='submit') Enregistrer
+

@@ -1,0 +1,15 @@
+extends base.pug
+
+block content
+
+    a.btn.btn-outline-lightnav-link(href='add_issue_type')
+        i.fas.fa-fw.fa-plus-circle
+        span Ajouter une catégorie d'issue
+    table#dataTable.table.table-striped
+        thead
+            tr
+                th Libellé
+
+        each n in rows
+            tr
+                td= n.itLabel

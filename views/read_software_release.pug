@@ -1,0 +1,19 @@
+extends base.pug
+
+block content
+    a.nav-link(href='/addsoftwarerelease/' + idSoftware)
+        i.fas.fa-fw.fa-plus-circle
+        span Ajouter une nouvelle release
+    table#dataTable.table.table-striped
+        thead
+            tr
+                th rVersion
+                th rId
+                th Versions
+        each n in rows
+            tr
+                td= n.rVersion
+                td= n.rId
+                td
+                    a.btn.btn-outline-warning(href="/versions/" + idSoftware + "/" + n.rId)
+                        | Versions

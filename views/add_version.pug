@@ -1,0 +1,20 @@
+extends base.pug
+
+block content
+    form(method='post', action='/version', enctype="application/json")
+        .form-group
+            label.col-form-label(for='a') Numéro de Version
+            input#a.form-control(type='number', placeholder='Numéro de Version', name="vId")
+
+        .form-group
+            label.col-form-label(for='b') Libellé
+            input#b.form-control(type='text', placeholder='Libellé de version', name="vLabel" )
+
+        .form-group
+            label.col-form-label(for='c') Description
+            input#c.form-control(type='text', placeholder='Description de la version', name="vDescription")
+
+            input(type='hidden', placeholder='Default input', value=idSoftware, name="idSoftware")
+            input(type='hidden', placeholder='Default input', value=idRelease, name="idRelease")
+
+            button.btn.btn-success(type='submit') Success

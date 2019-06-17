@@ -19,5 +19,4 @@ block content
                 td= n.uFirstName
                 td= n.uMail
                 td
-                    button.btn.btn-outline-primary(onclick="location.href='/tester/" + n.uId + "'" , type='button')
-                        | Modifier
+                    a.btn.btn-outline-primary(href="/tester/" + n.uId) Modifier

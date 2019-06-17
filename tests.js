@@ -25,16 +25,19 @@ let getAllTests = (req,res) => {
 let createTest = (req,res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     obj = JSON.parse(JSON.stringify(req.body, null, " "));
-    con.connect(function(err) {
-        console.log(obj);
+    let sql = mysql.format("INSERT INTO test (tDescription, tdateCreation, duration, catId) VALUES (?,?,?,?);", [obj.description, obj.dateCreation, obj.duration, obj.catId]);
+    con.query(sql, function (err, result) {
         if (err) throw err;
-        var sql = mysql.format("INSERT INTO test (tDescription, tdateCreation, duration, catId) VALUES (?,?,?,?);", [obj.description, obj.dateCreation, obj.duration, obj.catId]);
-        con.query(sql, function (err, result) {
-            if (err) throw err;
+
+        if(result.affectedRows > 0){
             console.log("1 record inserted");
-        });
+            res.status(200).end('Test créé' );
+        }
+        else{
+            console.log("0 record inserted");
+            res.status(200).end('Erreur lors de la création du test' );
+        }
     });
-    res.status(200).end('Test créé' );
 }
 
 //Supprime le test selon son id et les lignes le concernant en pariticiper, en test

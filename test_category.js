@@ -1,15 +1,21 @@
+const mysql = require('mysql');
+let con = mysql.createConnection({
+    host: "localhost",
+    user: "nodeuser",
+    password: "node",
+    database:"db_testing"
+    //port : 8889 // to comment when using WINDOWS
+});
+
+
 let getAllTestCategory = (req,res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
 
-    con.connect(function(err) {
+    con.query("SELECT * FROM test_category", function (err, rows, fields) {
         if (err) throw err;
-        con.query("SELECT * FROM test_category", function (err, rows, fields) {
-            if (err) throw err;
-            console.log(rows);
-            res.json(rows);
-        });
+        res.json(rows).end();
     });
-}
+};
 //Crée une nouvelle éxécution
 let addTestCategory = (req, res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");

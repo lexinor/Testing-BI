@@ -1,0 +1,52 @@
+extends base.pug
+
+
+block content
+    form.col-10(method='post', action='../addissue', enctype='application/json')
+        .form-group
+            label.col-form-label(for='description') Nom de l'anomalie
+            input#issName.form-control(type="text" name="iName" required)
+
+            label.col-form-label(for='description') Description de l'anomalie
+            textarea#description.form-control(name="idesc" required)
+
+        .form-group.col-6
+            label.col-form-label(for='ver') Version
+            select#ver.form-control(name="version" required)
+                - for(var version of versionlist)
+                    option(value=version.sId+"/"+version.rId+"/"+version.vId)=version.vLabel
+
+        .form-group.col-4
+            label.col-form-label(for='issuetype') Type d'anomalie
+            select#issuetype.form-control(name="typeissue" required)
+                - for(var type of typelist)
+                    option(value=type.itId)=type.itLabel
+
+            label.col-form-label(for='prioritylvl') Niveau de priorité
+            select#prioritylvl.form-control(name="priority" required)
+                option(value="1") 1
+                option(value="2") 2
+                option(value="3") 3
+                option(value="4") 4
+                option(value="5") 5
+
+            label.col-form-label(for='severitylvl') Niveau de sévérité
+            select#severitylvl.form-control(name="severity" required)
+                option(value="Low") Low
+                option(value="Medium") Medium
+                option(value="Important") Important
+
+            label.col-form-label(for='issuestatut') Statut de l'anomalie
+            select#issuestatut.form-control(name="statut" required)
+                option(value="nok") nok
+                option(value="norun") no run
+                option(value="ok") ok
+
+        .form-group.col-4
+            label.col-form-label(for='date') Date de création de l'anomalie
+            input#date.form-control(type="date" name="datecrea" required)
+
+            input#testId.form-control(type="hidden" name="testId" value=testId)
+        .form-group
+            button.btn.btn-success(type='submit') Ajouter le test
+            a.btn.btn-danger(href="/dashboard") Retour au dashboard

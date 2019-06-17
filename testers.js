@@ -5,6 +5,7 @@ let con = mysql.createConnection({
     user: "nodeuser",
     password: "node",
     database: "db_testing"
+    // port: "8889"
 });
 
 var getUsers = (req, res) => {
@@ -23,11 +24,10 @@ var getUsers = (req, res) => {
 var addUser = (req, res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     obj = JSON.parse(JSON.stringify(req.body, null, " "));
-
     con.connect(function(err) {
         console.log(obj);
         if (err) throw err;
-        var sql = mysql.format("INSERT INTO tester (uLastName, uFirstName, uPassword, uMail, rank) VALUES (?,?,?,?,?);", [obj.lastName, obj.firstName, obj.pass, obj.mail, obj.rank]);
+        var sql = mysql.format("INSERT INTO tester (uLastName, uFirstName, uPassword, uMail) VALUES (?,?,?,?);", [obj.lastName, obj.firstName, obj.pass, obj.mail]);
         con.query(sql, function (err, result) {
             if (err) throw err;
             if(result.affectedRows > 0){

@@ -6,12 +6,10 @@ block content
         .form-group
             label.col-form-label(for='a') Nom
             input#a.form-control(type='text', placeholder='Default input', value=software.sName, name="name")
-
         .form-group
             label.col-form-label(for='b') Description
             input#b.form-control(type='text', placeholder='Default input', value=software.sDescription , name="description" )
-
         .form-group
             input(type='hidden', placeholder='Default input', value=software.sId, name="id")
-
-        button.btn.btn-success(type='submit') Success
+            button.btn.btn-success(type='submit') Valider
+            a.btn.btn-google(href="/softwares") Retour

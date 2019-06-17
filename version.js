@@ -2,22 +2,23 @@ var mysql = require('mysql');
 
 let con = mysql.createConnection({
     host: "localhost",
-    user: "root",
-    password: "root",
-    database: "db_testing",
-    port: "8889"
+    user: "nodeuser",
+    password: "node",
+    database:"db_testing"
+    //port : 8889 // to comment when using WINDOWS
 });
+
 //-----------------------------------Fonctions Version -------------------------------------------------------------
 //Récupère toutes les éxécutions de test par un testeur
 let getAllVersion = (req,res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
 
-    con.connect(function(err) {
+    con.query("SELECT * FROM Version", function (err, rows) {
         if (err) throw err;
-        con.query("SELECT * FROM Version", function (err, rows, fields) {
-            if (err) throw err;
-            res.json(rows);
-        });
+        if(rows.length > 0)
+            res.json(rows).end();
+        else
+            res.json(rows).end();
     });
 };
 
