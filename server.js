@@ -280,8 +280,11 @@ app.get('/dashboard', (req, res) => {
                 res.render('dashboard', { mail: sess.mail, pagename: "Dashboard", rank: sess.rank, testslist: testlist } );
             });
         }
-        else
+        else{
+            console.log("rank : " + sess.rank)
             res.render('dashboard', { mail: sess.mail, pagename: "Dashboard", rank: sess.rank } );
+
+        }
 
     }else{
         res.redirect('/');
